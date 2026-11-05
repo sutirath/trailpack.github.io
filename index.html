@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Trail Pack Checklist</title>
+<meta name="description" content="เช็กลิสต์จัดเป้เดินป่า คำนวณของตามจำนวนวัน">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101010" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Trail Pack">
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font:14px system-ui,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+html,body{-webkit-text-size-adjust:100%;overscroll-behavior-y:none}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cal+Sans&display=swap">
+<style>
+/* Layout: desktop = sticky trip panel (left) + packing list (right); mobile = trip panel on top, thin sticky status bar, list below */
+:root{
+  --bg:#FFFFFF; --surface:#FFFFFF; --sunk:#F5F5F5; --soft:#F8F9FA; --ink:#111111; --body:#374151; --muted:#6B7280; --line:#E5E7EB; --box:#9CA3AF;
+  --pine:#111111; --moss:#111111; --moss-soft:#F3F4F6; --primary-active:#242424; --signal:#DC2626; --signal-soft:#FEF2F2;
+  --ok:#059669; --ok-soft:#ECFDF5; --done:#898989; --done-bg:#F8F9FA; --on-accent:#FFFFFF; --contour:transparent;
+  --p1b:#FFEDD5; --p1f:#C2410C; --p2b:#FCE7F3; --p2f:#BE185D; --p3b:#EDE9FE; --p3f:#6D28D9; --p4b:#D1FAE5; --p4f:#047857; --p5b:#DBEAFE; --p5f:#1D4ED8;
+  --shadow:0 1px 2px rgba(0,0,0,.05); --shadow-lg:0 4px 12px rgba(0,0,0,.08);
+  --f-display:"Cal Sans","Inter","Noto Sans Thai",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --f-body:"Inter","Noto Sans Thai",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --f-data:"JetBrains Mono",ui-monospace,monospace;
+  --r:12px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#101010; --surface:#1A1A1A; --sunk:#1F1F1F; --soft:#161616; --ink:#FFFFFF; --body:#D4D4D8; --muted:#A1A1AA; --line:#2E2E2E; --box:#71717A;
+  --pine:#FFFFFF; --moss:#FFFFFF; --moss-soft:#262626; --primary-active:#E5E7EB; --signal:#F87171; --signal-soft:#2A1515;
+  --ok:#34D399; --ok-soft:#0F2A20; --done:#71717A; --done-bg:#151515; --on-accent:#111111; --contour:transparent;
+  --p1b:rgba(251,146,60,.16); --p1f:#FDBA74; --p2b:rgba(236,72,153,.16); --p2f:#F9A8D4; --p3b:rgba(139,92,246,.18); --p3f:#C4B5FD; --p4b:rgba(52,211,153,.16); --p4f:#6EE7B7; --p5b:rgba(59,130,246,.18); --p5f:#93C5FD;
+  --shadow:0 1px 2px rgba(0,0,0,.4); --shadow-lg:0 4px 12px rgba(0,0,0,.5); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101010; --surface:#1A1A1A; --sunk:#1F1F1F; --soft:#161616; --ink:#FFFFFF; --body:#D4D4D8; --muted:#A1A1AA; --line:#2E2E2E; --box:#71717A;
+  --pine:#FFFFFF; --moss:#FFFFFF; --moss-soft:#262626; --primary-active:#E5E7EB; --signal:#F87171; --signal-soft:#2A1515;
+  --ok:#34D399; --ok-soft:#0F2A20; --done:#71717A; --done-bg:#151515; --on-accent:#111111; --contour:transparent;
+  --p1b:rgba(251,146,60,.16); --p1f:#FDBA74; --p2b:rgba(236,72,153,.16); --p2f:#F9A8D4; --p3b:rgba(139,92,246,.18); --p3f:#C4B5FD; --p4b:rgba(52,211,153,.16); --p4f:#6EE7B7; --p5b:rgba(59,130,246,.18); --p5f:#93C5FD;
+  --shadow:0 1px 2px rgba(0,0,0,.4); --shadow-lg:0 4px 12px rgba(0,0,0,.5); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  background-image:repeating-radial-gradient(circle at 90% -5%,transparent 0 42px,var(--contour) 42px 43px);background-attachment:fixed}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--moss);outline-offset:2px}
+.num{font-family:var(--f-data);font-variant-numeric:tabular-nums}
+
+.app{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:340px minmax(0,1fr);gap:28px;align-items:start;
+  padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px));padding-block:28px 56px}
+
+/* side panel */
+.side{position:sticky;top:calc(20px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:14px;max-height:calc(100vh - 40px);overflow:auto;scrollbar-width:thin}
+.brand h1{font-family:var(--f-display);font-weight:700;font-size:1.6rem;line-height:1.1;margin:0;color:var(--pine);text-wrap:balance}
+.brand p{margin:4px 0 0;color:var(--muted);font-size:.85rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.card h2{font-size:.8rem;letter-spacing:.04em;color:var(--ink);margin:0 0 10px;font-weight:600}
+
+.presets{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
+.preset{border:1px solid var(--line);background:var(--sunk);border-radius:10px;padding:8px 6px;font-size:.85rem;line-height:1.25;text-align:center}
+.preset b{display:block;font-weight:600}
+.preset small{color:var(--muted);font-size:.72rem}
+.preset[aria-pressed="true"]{background:var(--moss);border-color:var(--moss);color:var(--on-accent)}
+.preset[aria-pressed="true"] small{color:inherit;opacity:.8}
+
+.field{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.field label{font-weight:500;line-height:1.25}
+.field label small{display:block;font-weight:400;color:var(--muted);font-size:.78rem}
+.step{display:flex;align-items:center;background:var(--sunk);border:1px solid var(--line);border-radius:10px}
+.step button{width:40px;height:40px;border:0;background:none;color:var(--pine);font-size:1.3rem;font-weight:600;border-radius:10px}
+.step button:hover{background:var(--moss-soft)}
+.step button:active{transform:scale(.92)}
+.step input{width:52px;text-align:center;border:0;background:transparent;font-family:var(--f-data);font-weight:600;font-size:1.15rem;-moz-appearance:textfield}
+.step input::-webkit-inner-spin-button,.step input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+
+.prog{display:flex;align-items:center;gap:16px}
+.ring{width:84px;height:84px;flex:none;position:relative}
+.ring svg{transform:rotate(-90deg)}
+.ring .t{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-data);font-weight:600;font-size:1.15rem}
+.ring circle{fill:none;stroke-width:9}
+.ring .bgc{stroke:var(--sunk)} .ring .fg{stroke:var(--moss);stroke-linecap:round;transition:stroke-dashoffset .35s}
+.prog .txt b{font-size:1.05rem;display:block;font-weight:600}
+.prog .txt span{color:var(--muted);font-size:.85rem}
+
+.meter{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.meter .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.meter .row b{font-weight:500}
+.meter .big{font-family:var(--f-data);font-weight:600;font-size:1.35rem}
+.meter .big small{font-size:.8rem;color:var(--muted);font-weight:500}
+.track{height:10px;border-radius:5px;background:var(--sunk);border:1px solid var(--line);margin-top:8px;position:relative;overflow:hidden}
+.track i{position:absolute;inset:0 auto 0 0;background:var(--moss);transition:width .35s}
+.meter .msg{font-size:.82rem;margin-top:6px;color:var(--muted)}
+.meter.warn .big,.meter.warn .msg{color:var(--signal)} .meter.warn .track i{background:var(--signal)}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.stat{background:var(--sunk);border-radius:10px;padding:8px 10px;min-width:0}
+.stat span{display:block;font-size:.72rem;color:var(--muted)}
+.stat b{font-family:var(--f-data);font-weight:600;font-size:1.05rem}
+.stat b small{font-size:.72rem;color:var(--muted);font-weight:500;margin-left:2px}
+
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px;font-size:.88rem;font-weight:500;display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px}
+.btn:hover{border-color:var(--moss)}
+.btn[aria-pressed="true"]{background:var(--moss-soft);border-color:var(--moss);color:var(--pine)}
+.btn.danger{color:var(--signal);border-color:var(--signal)}
+.btn.wide{grid-column:1/-1}
+.confirm{grid-column:1/-1;background:var(--signal-soft);border-radius:10px;padding:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:.88rem}
+.confirm span{flex:1 1 100%}
+.confirm .btn{flex:1}
+.confirm .btn.go{background:var(--signal);border-color:var(--signal);color:var(--on-accent)}
+
+.brandrow{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.theme{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px}
+.theme button{display:flex;align-items:center;gap:5px;border:0;background:none;border-radius:7px;padding:6px 9px;font-size:.8rem;color:var(--muted);min-height:34px}
+.theme button:hover{color:var(--ink)}
+.theme button[aria-checked="true"]{background:var(--moss);color:var(--on-accent)}
+svg.lucide{width:1.15em;height:1.15em;flex:none;vertical-align:-.18em;stroke-width:2}
+.brand h1{display:flex;align-items:center;gap:8px}
+.brand h1 svg.lucide{width:1.15em;height:1.15em;color:var(--moss)}
+.card h2{display:flex;align-items:center;gap:7px}
+.card h2 svg.lucide,.stat span svg.lucide,.meter .row b svg.lucide{color:var(--moss)}
+.stat span{display:flex;align-items:center;gap:4px}
+.meter .row b{display:flex;align-items:center;gap:6px}
+.meter .msg{display:flex;align-items:flex-start;gap:6px}
+.meter .msg svg.lucide{margin-top:.15em}
+.ghead h3{display:flex;align-items:center;gap:9px}
+.ghead h3 svg.lucide{width:22px;height:22px;color:var(--moss);padding:3px;background:var(--moss-soft);border-radius:7px;box-sizing:content-box}
+.jump button{display:inline-flex;align-items:center;gap:6px}
+.jump button svg.lucide{width:15px;height:15px;color:var(--moss)}
+.btn svg.lucide,.add .go svg.lucide,.mbar .up svg.lucide{width:18px;height:18px}
+.add .go,.mbar .up{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.tag{display:inline-flex!important;align-items:center;gap:3px}
+.tag svg.lucide{width:11px;height:11px}
+.del{display:grid;place-items:center}
+.del svg.lucide{width:18px;height:18px}
+svg.lucide.chev{width:20px;height:20px}
+.theme button svg.lucide{width:16px;height:16px}
+.allpacked{align-items:center;gap:6px}
+.hidedone .list:not(:has(.item:not(.on):not(.na))) .allpacked{display:flex}
+/* setup screen */
+body.setup-mode .app,body.setup-mode .mbar{display:none!important}
+.setup{display:flex;justify-content:center;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 48px}
+.sbox{width:100%;max-width:640px;min-width:0}
+.shead{display:flex;gap:14px;align-items:center;margin-bottom:20px}
+.shead>svg.lucide{width:30px;height:30px;padding:10px;box-sizing:content-box;border-radius:14px;background:var(--moss);color:var(--on-accent)}
+.shead h1{font-family:var(--f-display);font-weight:700;font-size:1.65rem;line-height:1.15;margin:0;color:var(--pine);text-wrap:balance}
+.shead p{margin:2px 0 0;color:var(--muted)}
+.sform{display:flex;flex-direction:column;gap:14px}
+.sf{display:flex;flex-direction:column;gap:6px;min-width:0}
+.sf+.sf,.row2+.sf,.sf+.row2{margin-top:12px}
+.sf>label{font-weight:500}
+.sf>label .req{color:var(--signal)}
+.sf>label small{color:var(--muted);font-weight:400;margin-left:4px}
+.txt{border:1px solid var(--line);border-radius:10px;padding:11px 12px;background:var(--sunk);min-height:48px;font-size:16px;width:100%;min-width:0}
+.txt:focus{border-color:var(--moss);outline:none;box-shadow:0 0 0 3px var(--moss-soft)}
+.txt.bad{border-color:var(--signal);box-shadow:0 0 0 3px var(--signal-soft)}
+.ferr{color:var(--signal);font-size:.85rem}
+.row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.inline{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.inline:first-of-type{border-top:0}
+.inline .lb{font-weight:500;line-height:1.3}
+.inline .lb small{display:block;font-weight:400;color:var(--muted);font-size:.8rem}
+.tog{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line);cursor:pointer}
+.tog input{position:absolute;opacity:0;width:1px;height:1px}
+.sw{width:48px;height:28px;border-radius:14px;background:var(--line);position:relative;flex:none;transition:background .2s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
+.tog input:checked+.sw{background:var(--moss)}
+.tog input:checked+.sw::after{transform:translateX(20px)}
+.tog input:focus-visible+.sw{outline:2px solid var(--moss);outline-offset:2px}
+.tog .tl{flex:1;min-width:0;display:flex;align-items:center;gap:10px}
+.tog .tl svg.lucide{width:20px;height:20px;color:var(--moss)}
+.tog .tl b{display:block;font-weight:500}
+.tog .tl small{display:block;color:var(--muted);font-size:.8rem}
+.sact{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.btn.primary{background:var(--moss);border-color:var(--moss);color:var(--on-accent);font-weight:600;font-size:1rem;min-height:52px;padding:12px 28px}
+.btn.primary:hover{filter:brightness(1.08)}
+.metarow{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:6px}
+.metarow p{margin:0;color:var(--muted);font-size:.88rem;display:flex;flex-wrap:wrap;gap:4px 12px}
+.metarow p span{display:inline-flex;align-items:center;gap:4px}
+.metarow p svg.lucide{width:14px;height:14px;color:var(--moss)}
+.metarow .cd{color:var(--pine);font-weight:600}
+.btn.edit{min-height:36px;padding:6px 12px;font-size:.85rem}
+@media (max-width:640px){.row2{grid-template-columns:1fr}.sact .btn{flex:1}.shead h1{font-size:1.4rem}}
+/* ===== Cal.com-inspired system (DESIGN.md) ===== */
+body{background:var(--bg);background-image:none;color:var(--body);font-size:15px}
+.brand h1,.shead h1,.ghead h3,.sheet h3{font-family:var(--f-display);font-weight:600;letter-spacing:-0.02em;color:var(--ink)}
+.brand h1{font-size:1.75rem}
+.brand h1 svg.lucide{color:var(--ink)}
+.name b,.field label,.inline .lb,.tog .tl b,.sf>label,.prog .txt b,.meter .row b,.install .it b{color:var(--ink)}
+.card{background:var(--sunk);border:0;border-radius:12px;padding:20px}
+.card h2{font-size:.875rem;font-weight:600;letter-spacing:0;color:var(--ink)}
+.card h2 svg.lucide,.stat span svg.lucide,.meter .row b svg.lucide,.tog .tl svg.lucide,.metarow p svg.lucide{color:var(--muted)}
+.field,.inline,.tog,.setinstall,.meter{border-color:var(--line)}
+.presets{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:4px;gap:4px}
+.preset{border:0;background:transparent;border-radius:8px;color:var(--muted);padding:8px 4px}
+.preset b{color:var(--ink)}
+.preset[aria-pressed="true"]{background:var(--ink);color:var(--on-accent);box-shadow:var(--shadow)}
+.preset[aria-pressed="true"] b,.preset[aria-pressed="true"] small{color:var(--on-accent);opacity:1}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:8px}
+.step button{color:var(--ink);border-radius:8px}
+.step button:hover{background:var(--soft)}
+.step input{color:var(--ink)}
+.txt{background:var(--surface);border:1px solid var(--line);border-radius:8px}
+.txt:focus{border-color:var(--ink);box-shadow:0 0 0 3px var(--line)}
+.txt.bad{border-color:var(--signal);box-shadow:0 0 0 3px var(--signal-soft)}
+.theme{background:var(--soft);border:1px solid var(--line);border-radius:9999px;padding:4px}
+.theme button{border-radius:9999px;color:var(--muted);font-weight:500}
+.theme button[aria-checked="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-lg)}
+.ring .bgc{stroke:var(--surface)} .ring .fg{stroke:var(--ink)}
+.track{background:var(--surface);border:1px solid var(--line);border-radius:9999px}
+.track i{background:var(--ink);border-radius:9999px}
+.meter.warn .track i{background:var(--signal)}
+.meter.warn .big,.meter.warn .msg{color:var(--signal)}
+.meter .msg{color:var(--muted)}
+.stat{background:var(--surface);border-radius:8px}
+.stat b{color:var(--ink)}
+.btn{background:var(--surface);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-weight:600;font-size:.875rem;min-height:40px}
+.btn:hover{border-color:var(--line)}
+.btn:active{background:var(--soft)}
+.btn[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--on-accent)}
+.btn.primary,.add .go,.confirm .btn.go{background:var(--ink);border-color:var(--ink);color:var(--on-accent);border-radius:8px;font-weight:600}
+.btn.primary:hover{filter:none}
+.btn.primary:active,.add .go:active{background:var(--primary-active)}
+.btn.danger{color:var(--signal);border-color:var(--line)}
+.confirm{background:var(--signal-soft);border-radius:8px}
+.confirm .btn.go{background:var(--signal);border-color:var(--signal);color:#fff}
+.jump{background:var(--bg)}
+.jump button{background:var(--surface);border:1px solid var(--line);border-radius:9999px;color:var(--ink);font-weight:500}
+.jump button.full{background:var(--ok-soft);border-color:transparent;color:var(--ok)}
+.jump button.full .num{color:var(--ok)}
+.list{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.item{border-color:var(--line)}
+.item:hover{background:var(--soft)}
+.box{border:2px solid var(--box);border-radius:6px;background:var(--surface)}
+.item.on .box{background:var(--ink);border-color:var(--ink)}
+.item.on,.item.on:hover{background:var(--done-bg)}
+.item.on .name b{color:var(--done)}
+.name em{color:var(--muted)}
+.tag{background:var(--sunk);border:0;color:var(--ink);border-radius:9999px;font-size:.75rem;font-weight:500;padding:2px 8px}
+.qty .pill{background:var(--sunk);border:0;border-radius:9999px;color:var(--ink);padding:3px 12px}
+.gbar{background:var(--sunk);border:0;border-radius:9999px}
+.gbar i{background:var(--ink)}
+.ghead .num{color:var(--muted)}
+.ghead .num.full,.ghead .full{color:var(--ok)}
+.allpacked{color:var(--ok)}
+.ghead h3 svg.lucide{border-radius:9999px;padding:6px}
+#groups .group:nth-child(5n+1) .ghead h3 svg.lucide,.jump button:nth-child(5n+1) svg.lucide{background:var(--p1b);color:var(--p1f)}
+#groups .group:nth-child(5n+2) .ghead h3 svg.lucide,.jump button:nth-child(5n+2) svg.lucide{background:var(--p2b);color:var(--p2f)}
+#groups .group:nth-child(5n+3) .ghead h3 svg.lucide,.jump button:nth-child(5n+3) svg.lucide{background:var(--p3b);color:var(--p3f)}
+#groups .group:nth-child(5n+4) .ghead h3 svg.lucide,.jump button:nth-child(5n+4) svg.lucide{background:var(--p4b);color:var(--p4f)}
+#groups .group:nth-child(5n+5) .ghead h3 svg.lucide,.jump button:nth-child(5n+5) svg.lucide{background:var(--p5b);color:var(--p5f)}
+.jump button svg.lucide{border-radius:9999px;padding:3px;box-sizing:content-box;width:12px;height:12px}
+.jump button.full svg.lucide{background:transparent!important;color:var(--ok)!important}
+.sw{background:var(--box)}
+.tog input:checked+.sw{background:var(--ink)}
+.tog input:checked+.sw::after{background:var(--on-accent)}
+.shead>svg.lucide{background:var(--ink);color:var(--on-accent);border-radius:12px}
+.metarow .cd{background:var(--ok-soft);color:var(--ok);border-radius:9999px;padding:1px 10px;font-weight:500}
+.btn.edit{min-height:36px}
+.add input{background:var(--surface);border:1px solid var(--line);border-radius:8px}
+.del:hover{background:var(--signal-soft);color:var(--signal)}
+.foot{color:var(--muted)}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.toast{background:var(--ink);color:var(--bg);font-weight:500}
+@media (max-width:900px){.mbar{background:var(--surface);border-top:1px solid var(--line);box-shadow:var(--shadow-lg)}
+  .mbar .mt{background:var(--sunk)} .mbar .mt i{background:var(--ink)} .mbar .seg.warn b{color:var(--signal)} .mbar .seg.warn .mt i{background:var(--signal)}
+  .mbar .up{background:var(--surface);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-weight:600}}
+/* ===== primary = blue ===== */
+:root{--primary:#2563EB;--primary-hover:#1D4ED8;--primary-active:#1E40AF;--on-primary:#FFFFFF;--primary-soft:#EFF6FF}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--primary:#3B82F6;--primary-hover:#2563EB;--primary-active:#1D4ED8;--primary-soft:rgba(59,130,246,.16)}}
+:root[data-theme="dark"]{--primary:#3B82F6;--primary-hover:#2563EB;--primary-active:#1D4ED8;--primary-soft:rgba(59,130,246,.16)}
+.btn.primary,.add .go,.install .btn.primary{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+.btn.primary:hover,.add .go:hover{background:var(--primary-hover);border-color:var(--primary-hover)}
+.btn.primary:active,.add .go:active{background:var(--primary-active)}
+.btn[aria-pressed="true"]{background:var(--primary-soft);border-color:var(--primary);color:var(--primary)}
+.preset[aria-pressed="true"]{background:var(--primary);color:var(--on-primary)}
+.preset[aria-pressed="true"] b,.preset[aria-pressed="true"] small{color:var(--on-primary)}
+.tog input:checked+.sw{background:var(--primary)}
+.tog input:checked+.sw::after{background:#FFFFFF}
+.item.on .box{background:var(--primary);border-color:var(--primary)}
+.item.on .box svg path{stroke:#FFFFFF}
+.shead>svg.lucide,.sheet li .n{background:var(--primary);color:var(--on-primary)}
+.txt:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
+:focus-visible{outline-color:var(--primary)}
+.btn.edit{color:var(--primary);border-color:var(--primary)}
+/* mobile sticky status */
+.mbar{display:none}
+
+/* list */
+.main{min-width:0}
+.jump{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none;position:sticky;top:env(safe-area-inset-top,0px);z-index:4;background:var(--bg)}
+.jump::-webkit-scrollbar{display:none}
+.jump button{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:.82rem;white-space:nowrap}
+.jump button .num{color:var(--muted);margin-left:4px;font-size:.75rem}
+.jump button.full{border-color:var(--moss);background:var(--moss-soft);color:var(--pine)}
+.jump button.full .num{color:var(--moss)}
+
+.group{margin-top:14px;scroll-margin-top:60px}
+.ghead{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;padding:8px 2px;text-align:left}
+.ghead h3{font-family:var(--f-display);font-weight:600;font-size:1.08rem;margin:0;flex:1;min-width:0}
+.gbar{width:72px;height:8px;border-radius:4px;background:var(--sunk);border:1px solid var(--line);overflow:hidden;flex:none}
+.gbar i{display:block;height:100%;background:var(--moss);transition:width .3s}
+.ghead .num{font-size:.85rem;font-weight:600;color:var(--muted);min-width:38px;text-align:right}
+.ghead .full{color:var(--moss)}
+.chev{color:var(--muted);transition:transform .2s;flex:none}
+.group.closed .chev{transform:rotate(-90deg)}
+.group.closed .list{display:none}
+
+.list{list-style:none;margin:2px 0 0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.item{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:14px;align-items:center;padding:12px 16px;min-height:60px;border-top:1px solid var(--line);cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;transition:background .15s}
+.item:first-child{border-top:0}
+.item:hover{background:var(--sunk)}
+.box{width:28px;height:28px;border-radius:8px;border:2px solid var(--muted);display:grid;place-items:center;transition:.15s;background:var(--surface)}
+.box svg{opacity:0;transform:scale(.5);transition:.15s}
+.item.on .box{background:var(--moss);border-color:var(--moss)}
+.item.on .box svg{opacity:1;transform:none}
+.name b{font-weight:500;display:block;line-height:1.35}
+.name em{font-style:normal;font-size:.8rem;color:var(--muted)}
+.item.on{background:var(--done-bg)}
+.item.on:hover{background:var(--done-bg)}
+.item.on .name b{text-decoration:line-through;text-decoration-thickness:1.5px;color:var(--done)}
+.item.on .qty{opacity:.75}
+.tag{display:inline-block;font-size:.72rem;padding:1px 7px;border-radius:5px;background:var(--moss-soft);color:var(--pine);border:1px solid var(--moss);margin-left:6px;vertical-align:2px;font-weight:500}
+.qty{text-align:right;white-space:nowrap}
+.qty .pill{display:inline-block;background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:2px 10px;font-family:var(--f-data);font-weight:600;font-size:.95rem}
+.qty .pill span{font-family:var(--f-body);font-weight:400;font-size:.8rem;color:var(--muted);margin-left:3px}
+.qty small{display:block;font-family:var(--f-data);font-size:.72rem;color:var(--muted);margin-top:2px}
+.del{border:0;background:none;color:var(--muted);font-size:1.3rem;width:32px;height:32px;border-radius:8px;line-height:1}
+.del:hover{background:var(--signal-soft);color:var(--signal)}
+.na{display:none!important}
+.hidedone .item.on{display:none}
+.allpacked{display:none;padding:14px 16px;color:var(--moss);font-size:.88rem}
+.hidedone .list:not(:has(.item:not(.on):not(.na))) .allpacked{display:block}
+
+.add{margin-top:24px}
+.add form{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) auto;gap:8px}
+.add input{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--sunk);min-width:0;min-height:44px}
+.add .go{border:0;background:var(--moss);color:var(--on-accent);border-radius:10px;padding:0 20px;font-weight:600;min-height:44px}
+.foot{font-size:.8rem;color:var(--muted);margin-top:18px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);background:var(--ink);color:var(--bg);padding:9px 18px;border-radius:999px;font-size:.88rem;opacity:0;transition:.25s;pointer-events:none;z-index:20}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ---------- mobile ---------- */
+@media (max-width:900px){
+  .app{grid-template-columns:minmax(0,1fr);gap:16px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px 96px}
+  .side{position:static;max-height:none;overflow:visible}
+  .side .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .mbar{display:flex;align-items:center;gap:12px;position:fixed;left:0;right:0;bottom:0;z-index:8;background:var(--surface);border-top:1px solid var(--line);
+    padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));box-shadow:0 -8px 20px -16px rgba(0,0,0,.45)}
+  .mbar .seg{flex:1;min-width:0}
+  .mbar .seg span{display:block;font-size:.7rem;color:var(--muted)}
+  .mbar .seg b{font-family:var(--f-data);font-weight:600;font-size:1rem}
+  .mbar .seg.warn b{color:var(--signal)}
+  .mbar .mt{height:6px;border-radius:3px;background:var(--sunk);margin-top:4px;overflow:hidden}
+  .mbar .mt i{display:block;height:100%;background:var(--moss);transition:width .3s}
+  .mbar .seg.warn .mt i{background:var(--signal)}
+  .mbar .up{border:1px solid var(--line);background:var(--sunk);border-radius:10px;height:40px;padding:0 12px;font-size:.85rem;font-weight:500;flex:none}
+  .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+}
+@media (max-width:640px){
+  .side .grid2{grid-template-columns:1fr}
+  .presets{grid-template-columns:repeat(4,1fr)}
+  .preset{padding:8px 2px}
+  .item{gap:12px;padding:12px 14px}
+  .add form{grid-template-columns:1fr 1fr}
+  .add form input:first-child,.add .go{grid-column:1/-1}
+}
+@media (max-width:380px){.presets{grid-template-columns:1fr 1fr}.gbar{display:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+/* install */
+.install{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--moss);border-radius:var(--r);padding:12px 12px 12px 14px;
+  margin:12px max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));box-shadow:0 6px 18px -14px rgba(0,0,0,.5)}
+.install>svg.lucide{width:26px;height:26px;padding:8px;box-sizing:content-box;border-radius:10px;background:var(--moss-soft);color:var(--moss)}
+.install .it{flex:1;min-width:0;line-height:1.3}
+.install .it b{display:block;font-weight:600}
+.install .it small{color:var(--muted);font-size:.8rem}
+.install .btn.primary{min-height:42px;padding:8px 16px;font-size:.9rem}
+.install .x{border:0;background:none;color:var(--muted);width:34px;height:34px;border-radius:8px;display:grid;place-items:center;flex:none}
+.install .x svg.lucide{width:18px;height:18px}
+.sheetbg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:30;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);width:100%;max-width:520px;border-radius:20px 20px 0 0;padding:20px max(20px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px))}
+.sheet h3{font-family:var(--f-display);font-size:1.2rem;margin:0 0 4px;color:var(--pine)}
+.sheet p{margin:0 0 14px;color:var(--muted)}
+.sheet ol{list-style:none;margin:0 0 16px;padding:0;display:flex;flex-direction:column;gap:10px}
+.sheet li{display:flex;align-items:center;gap:12px;background:var(--sunk);border-radius:12px;padding:12px}
+.sheet li .n{width:28px;height:28px;border-radius:50%;background:var(--moss);color:var(--on-accent);display:grid;place-items:center;font-weight:600;flex:none}
+.sheet li svg.lucide{width:20px;height:20px;color:var(--moss);vertical-align:-4px;margin:0 2px}
+.sheet .btn{width:100%}
+.setinstall{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
+.install{border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-lg)}
+.install>svg.lucide{background:var(--sunk);color:var(--ink);border-radius:9999px}
+.sheet{border-radius:16px 16px 0 0}
+.sheet h3{color:var(--ink)}
+.sheet li{background:var(--sunk);border-radius:8px}
+.sheet li .n{background:var(--ink);color:var(--on-accent)}
+.sheet li svg.lucide{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="install" id="installBar" hidden>
+  <i data-lucide="smartphone"></i>
+  <div class="it"><b>ติดตั้งเป็นแอป</b><small>เปิดจากหน้าจอหลัก ใช้งานได้แม้ไม่มีเน็ต</small></div>
+  <button class="btn primary" id="installBtn"><i data-lucide="download"></i>ติดตั้ง</button>
+  <button class="x" id="installX" aria-label="ปิด"><i data-lucide="x"></i></button>
+</div>
+<div class="sheetbg" id="iosSheet" hidden>
+  <div class="sheet" role="dialog" aria-labelledby="sheetT">
+    <h3 id="sheetT">ติดตั้ง Trail Pack</h3>
+    <p id="sheetP">ทำตาม 3 ขั้นตอนนี้ใน Safari</p>
+    <ol id="sheetSteps"></ol>
+    <button class="btn primary" id="sheetOk">เข้าใจแล้ว</button>
+  </div>
+</div>
+
+<section class="setup" id="setup" hidden>
+  <div class="sbox">
+    <div class="shead"><i data-lucide="mountain-snow"></i><div><h1 id="setupTitle">วางแผนทริปเดินป่า</h1><p id="setupSub">กรอกข้อมูลทริป แล้วระบบจะคำนวณของที่ต้องเตรียมให้</p></div></div>
+    <form class="sform" id="setupForm" novalidate>
+      <section class="card">
+        <h2><i data-lucide="map-pin"></i>ข้อมูลทริป</h2>
+        <div class="sf"><label for="sName">ชื่อทริป <span class="req">*</span></label><input class="txt" id="sName" placeholder="เช่น ดอยหลวงเชียงดาว" maxlength="60" autocomplete="off"><span class="ferr" id="sNameErr" hidden>กรุณาใส่ชื่อทริป</span></div>
+        <div class="row2">
+          <div class="sf"><label for="sPlace">สถานที่<small>ไม่บังคับ</small></label><input class="txt" id="sPlace" placeholder="เช่น อ.เชียงดาว เชียงใหม่" maxlength="60" autocomplete="off"></div>
+          <div class="sf"><label for="sDate">วันเดินทาง<small>ไม่บังคับ</small></label><input class="txt" id="sDate" type="date"></div>
+        </div>
+      </section>
+      <section class="card">
+        <h2><i data-lucide="calendar-days"></i>ระยะเวลา</h2>
+        <div class="presets">
+          <button type="button" class="preset" data-sd="1"><b>1 วัน</b><small>เช้าไปเย็นกลับ</small></button>
+          <button type="button" class="preset" data-sd="2"><b>2 วัน</b><small>1 คืน</small></button>
+          <button type="button" class="preset" data-sd="3"><b>3 วัน</b><small>2 คืน</small></button>
+          <button type="button" class="preset" data-sd="4"><b>4 วัน</b><small>3 คืน</small></button>
+        </div>
+        <div class="inline"><span class="lb"><label for="sDays">จำนวนวัน</label><small id="sNights">1 คืน</small></span>
+          <div class="step"><button type="button" data-sstep="sDays:-1" aria-label="ลดวัน">−</button><input id="sDays" type="number" min="1" max="30" inputmode="numeric" value="2"><button type="button" data-sstep="sDays:1" aria-label="เพิ่มวัน">+</button></div></div>
+      </section>
+      <section class="card">
+        <h2><i data-lucide="user"></i>ตัวคุณ</h2>
+        <div class="inline"><span class="lb"><label for="sBw">น้ำหนักตัว</label><small>กิโลกรัม ใช้คำนวณน้ำหนักเป้ที่เหมาะสม</small></span>
+          <div class="step"><button type="button" data-sstep="sBw:-1" aria-label="ลดน้ำหนักตัว">−</button><input id="sBw" type="number" min="30" max="150" inputmode="numeric" value="70"><button type="button" data-sstep="sBw:1" aria-label="เพิ่มน้ำหนักตัว">+</button></div></div>
+        <div class="inline"><span class="lb"><label for="sWater">น้ำดื่มต่อวัน</label><small>ลิตร ปกติ 2–3 ลิตร</small></span>
+          <div class="step"><button type="button" data-sstep="sWater:-0.5" aria-label="ลดน้ำ">−</button><input id="sWater" type="number" min="0.5" max="6" step="0.5" inputmode="decimal" value="2.5"><button type="button" data-sstep="sWater:0.5" aria-label="เพิ่มน้ำ">+</button></div></div>
+      </section>
+      <section class="card">
+        <h2><i data-lucide="settings-2"></i>การตั้งค่า</h2>
+        <label class="tog" style="border-top:0"><input type="checkbox" id="sCook"><span class="sw"></span><span class="tl"><i data-lucide="flame"></i><span><b>ทำอาหารเอง</b><small>เพิ่มเตา แก๊ส หม้อสนาม</small></span></span></label>
+        <label class="tog"><input type="checkbox" id="sCold"><span class="sw"></span><span class="tl"><i data-lucide="snowflake"></i><span><b>อากาศหนาว / ขึ้นดอย</b><small>เพิ่มเสื้อกันหนาว</small></span></span></label>
+        <label class="tog"><input type="checkbox" id="sRain"><span class="sw"></span><span class="tl"><i data-lucide="cloud-rain"></i><span><b>ช่วงฝน / ป่าดิบชื้น</b><small>เพิ่มถุงกันทาก</small></span></span></label>
+        <div class="inline" style="border-top:1px solid var(--line)"><span class="lb">ธีมสี<small>ปรับได้ภายหลัง</small></span>
+          <div class="theme" role="radiogroup" aria-label="ธีมสี">
+            <button type="button" role="radio" data-theme-set="system" aria-label="ตามระบบ"><i data-lucide="monitor"></i><span>ระบบ</span></button>
+            <button type="button" role="radio" data-theme-set="light" aria-label="สว่าง"><i data-lucide="sun"></i><span>สว่าง</span></button>
+            <button type="button" role="radio" data-theme-set="dark" aria-label="มืด"><i data-lucide="moon"></i><span>มืด</span></button>
+          </div></div>
+        <div class="setinstall" id="setInstallRow" hidden><span class="lb" style="font-weight:500;line-height:1.3">ติดตั้งแอปบนมือถือ<small style="display:block;font-weight:400;color:var(--muted);font-size:.8rem">ใช้งานออฟไลน์ได้</small></span><button type="button" class="btn" id="setInstallBtn"><i data-lucide="download"></i>ติดตั้ง</button></div>
+        <label class="tog" id="sClearRow"><input type="checkbox" id="sClear"><span class="sw"></span><span class="tl"><i data-lucide="rotate-ccw"></i><span><b>ล้างเครื่องหมายที่เช็กไว้</b><small>เริ่มจัดเป้ใหม่ตั้งแต่ต้น</small></span></span></label>
+      </section>
+      <div class="sact">
+        <button type="button" class="btn" id="sCancel">ยกเลิก</button>
+        <button type="submit" class="btn primary" id="sSubmit"><i data-lucide="backpack"></i>เริ่มจัดเป้</button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<div class="app">
+  <aside class="side" id="top">
+    <div class="brand">
+      <div class="brandrow">
+        <h1><i data-lucide="mountain-snow"></i><span id="tripName">เช็กลิสต์เดินป่า</span></h1>
+        <div class="theme" role="radiogroup" aria-label="ธีมสี">
+          <button role="radio" data-theme-set="system" title="ตามระบบ" aria-label="ตามระบบ"><i data-lucide="monitor"></i><span>ระบบ</span></button>
+          <button role="radio" data-theme-set="light" title="สว่าง" aria-label="สว่าง"><i data-lucide="sun"></i><span>สว่าง</span></button>
+          <button role="radio" data-theme-set="dark" title="มืด" aria-label="มืด"><i data-lucide="moon"></i><span>มืด</span></button>
+        </div>
+      </div>
+      <div class="metarow"><p id="tripMeta"></p><button class="btn edit" id="editTrip"><i data-lucide="settings-2"></i>แก้ไขทริป</button></div>
+    </div>
+    <div class="grid2">
+      <section class="card" aria-labelledby="h-trip">
+        <h2 id="h-trip"><i data-lucide="route"></i>ทริปของคุณ</h2>
+        <div class="presets" id="presets">
+          <button class="preset" data-d="1"><b>1 วัน</b><small>เช้าไปเย็นกลับ</small></button>
+          <button class="preset" data-d="2"><b>2 วัน</b><small>1 คืน</small></button>
+          <button class="preset" data-d="3"><b>3 วัน</b><small>2 คืน</small></button>
+          <button class="preset" data-d="4"><b>4 วัน</b><small>3 คืน</small></button>
+        </div>
+        <div class="field">
+          <label for="days">จำนวนวัน<small id="nights">1 คืน</small></label>
+          <div class="step"><button type="button" data-step="days:-1" aria-label="ลดวัน">−</button><input id="days" type="number" min="1" max="30" inputmode="numeric" value="2"><button type="button" data-step="days:1" aria-label="เพิ่มวัน">+</button></div>
+        </div>
+        <div class="field">
+          <label for="bw">น้ำหนักตัว<small>กิโลกรัม</small></label>
+          <div class="step"><button type="button" data-step="bw:-1" aria-label="ลดน้ำหนักตัว">−</button><input id="bw" type="number" min="30" max="150" inputmode="numeric" value="70"><button type="button" data-step="bw:1" aria-label="เพิ่มน้ำหนักตัว">+</button></div>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="h-status">
+        <h2 id="h-status"><i data-lucide="gauge"></i>ความพร้อม</h2>
+        <div class="prog">
+          <div class="ring"><svg width="84" height="84" viewBox="0 0 84 84"><circle class="bgc" cx="42" cy="42" r="36"/><circle class="fg" id="ringFg" cx="42" cy="42" r="36" stroke-dasharray="226.2" stroke-dashoffset="226.2"/></svg><div class="t" id="ringT">0%</div></div>
+          <div class="txt"><b id="progB">จัดแล้ว 0 จาก 0</b><span id="progS">เหลือ 0 รายการ</span></div>
+        </div>
+        <div class="meter" id="meter">
+          <div class="row"><b><i data-lucide="weight"></i>น้ำหนักเป้</b><span class="big" id="wBig">0 <small>kg</small></span></div>
+          <div class="track"><i id="wBar"></i></div>
+          <div class="msg" id="wMsg"></div>
+        </div>
+        <div class="stats">
+          <div class="stat"><span><i data-lucide="droplets"></i>น้ำดื่ม</span><b id="sWater">0<small>ลิตร</small></b></div>
+          <div class="stat"><span><i data-lucide="utensils"></i>อาหาร</span><b id="sFood">0<small>มื้อ</small></b></div>
+          <div class="stat"><span><i data-lucide="footprints"></i>ถุงเท้า</span><b id="sSock">0<small>คู่</small></b></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="actions">
+      <button class="btn" id="fDone" aria-pressed="false">ซ่อนที่จัดแล้ว</button>
+      <button class="btn" id="copy"><i data-lucide="copy"></i>คัดลอกรายการ</button>
+      <button class="btn" id="newTrip"><i data-lucide="circle-plus"></i>ทริปใหม่</button>
+      <button class="btn danger" id="reset"><i data-lucide="rotate-ccw"></i>ล้างเช็ก</button>
+      <div class="confirm" id="confirmBox" hidden><span>ล้างเครื่องหมายทุกรายการใช่ไหม</span><button class="btn" id="no">ยกเลิก</button><button class="btn go" id="yes">ล้าง</button></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <nav class="jump" id="jump" aria-label="ไปที่หมวด"></nav>
+    <div id="groups"></div>
+
+    <section class="card add" aria-labelledby="h-add">
+      <h2 id="h-add"><i data-lucide="circle-plus"></i>เพิ่มรายการของคุณ</h2>
+      <form id="addForm">
+        <input id="aName" placeholder="ชื่อของ เช่น กล้อง" required>
+        <input id="aQty" type="number" min="1" placeholder="จำนวน" inputmode="numeric">
+        <input id="aG" type="number" min="0" placeholder="กรัม / ชิ้น" inputmode="numeric">
+        <button class="go" type="submit"><i data-lucide="plus"></i>เพิ่ม</button>
+      </form>
+    </section>
+    <p class="foot">จำนวนคำนวณจากจำนวนวันและปัดขึ้น • ป้าย "ค้างคืน" จะซ่อนเมื่อไปวันเดียว • กด "แก้ไขทริป" เพื่อเปิด/ปิดของตามการตั้งค่า • น้ำหนักเป็นค่าประมาณ • เป้ไม่ควรเกิน 25% ของน้ำหนักตัว • สถานะบันทึกไว้ในเบราว์เซอร์เครื่องนี้</p>
+  </main>
+</div>
+
+<div class="mbar" role="status">
+  <div class="seg"><span id="mDays">2 วัน 1 คืน</span><b id="mProg">0/0</b><div class="mt"><i id="mProgBar"></i></div></div>
+  <div class="seg" id="mWseg"><span>น้ำหนักเป้</span><b id="mW">0 kg</b><div class="mt"><i id="mWBar"></i></div></div>
+  <button class="up" id="mUp"><i data-lucide="sliders-horizontal"></i>ปรับทริป</button>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="lucide.min.js"></script>
+<script>
+// [name, overnightOnly, base, perDay, unit, gramsPerUnit, note]
+const DATA=[
+ ["อุปกรณ์หลัก",[
+  ["เป้ + Rain cover",0,1,0,"ใบ",1500,"Day pack 20–30L / ค้างคืน 40–60L"],
+  ["รองเท้าเดินป่า / รองเท้าเทรล",0,1,0,"คู่",0,"สวมใส่"],
+  ["ไม้เท้าเดินป่า",0,1,0,"คู่",500,""],
+  ["ไฟฉายคาดหัว",0,1,0,"อัน",100,""],
+  ["ถ่าน / แบตสำรองไฟฉาย",0,1,0,"ชุด",50,""]]],
+ ["เสื้อผ้า",[
+  ["เสื้อแห้งเร็ว",0,0,1,"ตัว",180,"1 ตัว/วัน"],
+  ["กางเกงเดินป่าแห้งเร็ว",0,1,0,"ตัว",350,""],
+  ["ถุงเท้าเดินป่า",0,1,1,"คู่",60,"1 คู่/วัน + สำรอง 1"],
+  ["เสื้อกันหนาว / Fleece",0,1,0,"ตัว",400,"บนดอยกลางคืนหนาว"],
+  ["เสื้อกันฝน / Poncho",0,1,0,"ตัว",300,""],
+  ["หมวก + บัฟ + ถุงมือ",0,1,0,"ชุด",150,""],
+  ["ชุดนอนแห้ง",1,1,0,"ชุด",300,"ใส่ถุงกันน้ำ"],
+  ["ถุงกันทาก",0,1,0,"คู่",60,"ช่วงฝน / ป่าดิบชื้น"]]],
+ ["ค้างคืน",[
+  ["เต็นท์ / เปล + ฟลายชีท",1,1,0,"หลัง",2000,""],
+  ["ถุงนอน",1,1,0,"ใบ",1000,"เลือกตามอุณหภูมิ"],
+  ["แผ่นรองนอน",1,1,0,"แผ่น",500,""],
+  ["หมอนเป่าลม",1,1,0,"ใบ",100,""]]],
+ ["อาหารและน้ำ",[
+  ["น้ำดื่ม",0,0,2.5,"ลิตร",1000,"~2.5 ลิตร/วัน"],
+  ["ขวดน้ำ / Hydration bladder",0,1,0,"ใบ",150,""],
+  ["เม็ด / เครื่องกรองน้ำ",0,1,0,"ชุด",100,""],
+  ["อาหารหลัก (ข้าวอบแห้ง ฯลฯ)",0,0,3,"มื้อ",150,"3 มื้อ/วัน"],
+  ["ขนมพลังงานสูง",0,0,3,"ชิ้น",50,"ถั่ว เจล ช็อกโกแลต"],
+  ["เตาแก๊สพกพา + ไฟแช็ก",1,1,0,"ชุด",300,""],
+  ["แก๊สกระป๋อง",1,0,0.34,"กระป๋อง",230,"~1 กระป๋อง/3 วัน"],
+  ["หม้อสนาม / ช้อน / แก้ว",1,1,0,"ชุด",300,""]]],
+ ["นำทางและสื่อสาร",[
+  ["มือถือ + แผนที่ออฟไลน์",0,1,0,"เครื่อง",200,""],
+  ["Power bank 10,000 mAh",0,0,0.5,"ก้อน",200,"~1 ก้อน/2 วัน"],
+  ["นกหวีด",0,1,0,"อัน",10,""],
+  ["นาฬิกา GPS",0,1,0,"เรือน",0,"สวมใส่"]]],
+ ["ปฐมพยาบาล",[
+  ["ชุดปฐมพยาบาล",0,1,0,"ชุด",300,""],
+  ["ยาประจำตัว / แก้ปวด / แก้แพ้ / เกลือแร่",0,1,0,"ชุด",80,""],
+  ["พลาสเตอร์กันรองเท้ากัด",0,1,0,"แผง",20,""],
+  ["ยากันยุง / ยาทากันทาก",0,1,0,"ขวด",100,""],
+  ["ครีมกันแดด",0,1,0,"หลอด",100,""],
+  ["มีดพับ / Multi-tool",0,1,0,"อัน",100,""],
+  ["ผ้าห่มฉุกเฉิน",0,1,0,"ผืน",60,""]]],
+ ["ของใช้ส่วนตัว",[
+  ["ทิชชู่ / ทิชชู่เปียก",0,0,1,"ห่อ",50,"1 ห่อ/วัน"],
+  ["ถุงขยะ",0,0,2,"ใบ",10,"นำขยะกลับลงมา"],
+  ["ถุงซิปล็อก / Dry bag",0,5,0,"ใบ",10,""],
+  ["ผ้าเช็ดตัวแห้งเร็ว",0,1,0,"ผืน",150,""],
+  ["แปรงฟัน / ยาสีฟัน",1,1,0,"ชุด",80,""]]],
+ ["ก่อนออกเดินทาง",[
+  ["บัตรประชาชน + เงินสด",0,1,0,"ชุด",30,"ค่าอุทยาน / ลูกหาบ"],
+  ["จองอุทยาน / ลงทะเบียนเส้นทาง",0,1,0,"",0,""],
+  ["แจ้งแผนเส้นทาง + เวลากลับให้คนที่บ้าน",0,1,0,"",0,""],
+  ["เช็กพยากรณ์อากาศ",0,1,0,"",0,""]]]
+];
+const KEY="trailpack.v1", TKEY="trailpack.theme";
+const root=document.documentElement, hostTheme=root.getAttribute("data-theme");
+let theme="system"; try{theme=localStorage.getItem(TKEY)||"system"}catch(e){}
+function applyTheme(t){theme=t;
+  if(t==="system"){ if(hostTheme) root.setAttribute("data-theme",hostTheme); else root.removeAttribute("data-theme"); }
+  else root.setAttribute("data-theme",t);
+  document.querySelectorAll("[data-theme-set]").forEach(b=>b.setAttribute("aria-checked",b.dataset.themeSet===t));
+  try{localStorage.setItem(TKEY,t)}catch(e){}
+}
+let S={days:2,bw:70,on:{},custom:[],closed:{},hideDone:false,trip:{name:"",place:"",date:""},water:2.5,cook:true,cold:true,rain:false};
+try{const s=JSON.parse(localStorage.getItem(KEY)||"null"); if(s) S=Object.assign(S,s);}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const CHECK='<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3L13 4.5" stroke="var(--on-accent)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const CICON=["backpack","shirt","tent","utensils","compass","briefcase-medical","bath","clipboard-check","package-plus"];
+const ic=(n,c)=>`<i data-lucide="${n}"${c?` class="${c}"`:""}></i>`;
+const COOK=new Set(["เตาแก๊สพกพา + ไฟแช็ก","แก๊สกระป๋อง","หม้อสนาม / ช้อน / แก้ว"]);
+const COLD=new Set(["เสื้อกันหนาว / Fleece"]);
+const RAIN=new Set(["ถุงกันทาก"]);
+const CATS=[...DATA.map(d=>d[0]),"ของเพิ่มเติม"];
+
+function allItems(){
+  const out=[];
+  DATA.forEach(([,items],ci)=>items.forEach((it,ii)=>out.push({id:`${ci}-${ii}`,ci,n:it[0],ov:it[1],b:it[2],pd:it[0]==="น้ำดื่ม"?S.water:it[3],u:it[4],g:it[5],note:it[6]})));
+  S.custom.forEach(c=>out.push({id:"u"+c.t,ci:DATA.length,n:c.n,ov:0,b:c.q,pd:0,u:"ชิ้น",g:c.g,note:"",custom:true,t:c.t}));
+  return out;
+}
+const qtyOf=it=>((it.ov&&S.days<=1)||(COOK.has(it.n)&&!S.cook)||(COLD.has(it.n)&&!S.cold)||(RAIN.has(it.n)&&!S.rain))?0:Math.ceil(it.b+it.pd*S.days-1e-9);
+const fmtW=g=>g>=1000?(g/1000).toFixed(1)+" kg":g+" g";
+const tripLabel=d=>d<=1?"ไปเช้าเย็นกลับ":`${d} วัน ${d-1} คืน`;
+
+function render(){
+  const items=allItems();
+  let groups="",jump="";
+  CATS.forEach((cat,ci)=>{
+    const list=items.filter(i=>i.ci===ci); if(!list.length) return;
+    const need=list.filter(i=>qtyOf(i)>0); if(!need.length&&ci!==DATA.length) { return; }
+    const done=need.filter(i=>S.on[i.id]).length, full=need.length&&done===need.length;
+    const rows=list.map(it=>{
+      const q=qtyOf(it), on=!!S.on[it.id], w=q*it.g;
+      return `<li class="item${on?" on":""}${q===0?" na":""}" data-id="${it.id}" role="checkbox" aria-checked="${on}" tabindex="0">
+        <span class="box">${CHECK}</span>
+        <span class="name"><b>${esc(it.n)}${it.ov?'<span class="tag"><i data-lucide="moon"></i>ค้างคืน</span>':""}</b>${it.note?`<em>${esc(it.note)}</em>`:""}</span>
+        <span class="qty">${it.u?`<span class="pill">${q}<span>${it.u}</span></span>`:""}${w?`<small>${fmtW(w)}</small>`:""}</span>
+        ${it.custom?`<button class="del" data-del="${it.t}" aria-label="ลบ ${esc(it.n)}">${ic("x")}</button>`:"<span></span>"}
+      </li>`}).join("");
+    groups+=`<section class="group${S.closed[ci]?" closed":""}" id="g${ci}">
+      <button class="ghead" data-toggle="${ci}" aria-expanded="${!S.closed[ci]}"><h3>${ic(CICON[ci])}${cat}</h3>
+        <span class="gbar"><i style="width:${need.length?done/need.length*100:0}%"></i></span>
+        <span class="num${full?" full":""}">${done}/${need.length}</span>
+        ${ic("chevron-down","chev")}</button>
+      <ul class="list">${rows}<li class="allpacked">${ic("circle-check")}จัดครบหมวดนี้แล้ว</li></ul></section>`;
+    jump+=`<button data-jump="${ci}" class="${full?"full":""}">${ic(CICON[ci])}${cat}<span class="num">${done}/${need.length}</span></button>`;
+  });
+  $("groups").innerHTML=groups; $("jump").innerHTML=jump;
+  $("groups").classList.toggle("hidedone",S.hideDone);
+  $("fDone").setAttribute("aria-pressed",S.hideDone);
+  $("fDone").innerHTML=S.hideDone?'<i data-lucide="eye"></i>แสดงทั้งหมด':'<i data-lucide="eye-off"></i>ซ่อนที่จัดแล้ว';
+  summary(items);
+  try{window.lucide&&lucide.createIcons()}catch(e){}
+}
+function summary(items){
+  const need=items.filter(i=>qtyOf(i)>0), done=need.filter(i=>S.on[i.id]).length, pct=need.length?done/need.length:0;
+  $("days").value=S.days; $("bw").value=S.bw;
+  $("nights").textContent=S.days<=1?"ไม่ค้างคืน":`${S.days-1} คืน`;
+  document.querySelectorAll(".preset[data-d]").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.d===S.days));
+  $("tripName").textContent=S.trip.name||"เช็กลิสต์เดินป่า";
+  const meta=[];
+  if(S.trip.place) meta.push(`<span>${ic("map-pin")}${esc(S.trip.place)}</span>`);
+  if(S.trip.date){const d=new Date(S.trip.date+"T00:00:00");
+    if(!isNaN(d)){meta.push(`<span>${ic("calendar")}${d.toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"numeric"})}</span>`);
+      const t=new Date();t.setHours(0,0,0,0);const diff=Math.round((d-t)/864e5);
+      if(diff>0) meta.push(`<span class="cd">อีก ${diff} วัน</span>`); else if(diff===0) meta.push(`<span class="cd">วันนี้</span>`);}}
+  meta.push(`<span>${ic("clock")}${tripLabel(S.days)}</span>`);
+  $("tripMeta").innerHTML=meta.join("");
+  $("ringFg").style.strokeDashoffset=226.2*(1-pct);
+  $("ringT").textContent=Math.round(pct*100)+"%";
+  $("progB").textContent=`จัดแล้ว ${done} จาก ${need.length}`;
+  $("progS").textContent=done===need.length&&need.length?"พร้อมออกเดินทางแล้ว":`เหลือ ${need.length-done} รายการ`;
+  const g=need.reduce((s,i)=>s+qtyOf(i)*i.g,0), kg=g/1000, lim=S.bw*.25, over=kg>lim, wp=Math.min(100,kg/lim*100);
+  $("wBig").innerHTML=`${kg.toFixed(1)} <small>/ ${lim.toFixed(1)} kg</small>`;
+  $("wBar").style.width=wp+"%";
+  $("meter").classList.toggle("warn",over);
+  $("wMsg").innerHTML=over?`${ic("triangle-alert")}<span>หนักเกินไป ${(kg-lim).toFixed(1)} kg ลองลดของหรือแบ่งให้เพื่อน</span>`:`${ic("circle-check")}<span>${Math.round(kg/S.bw*100)}% ของน้ำหนักตัว ยังอยู่ในเกณฑ์</span>`;
+  const find=p=>qtyOf(items.find(i=>i.n.startsWith(p)));
+  $("sWater").innerHTML=`${find("น้ำดื่ม")}<small>ลิตร</small>`;
+  $("sFood").innerHTML=`${find("อาหารหลัก")}<small>มื้อ</small>`;
+  $("sSock").innerHTML=`${find("ถุงเท้า")}<small>คู่</small>`;
+  $("mDays").textContent=(S.trip.name?S.trip.name+" · ":"")+tripLabel(S.days);
+  $("mProg").textContent=`${done}/${need.length} รายการ`;
+  $("mProgBar").style.width=pct*100+"%";
+  $("mW").textContent=`${kg.toFixed(1)} / ${lim.toFixed(1)} kg`;
+  $("mWBar").style.width=wp+"%";
+  $("mWseg").classList.toggle("warn",over);
+}
+function toast(t){const el=$("toast");el.textContent=t;el.classList.add("show");clearTimeout(toast.h);toast.h=setTimeout(()=>el.classList.remove("show"),1600)}
+function setNum(k,v){const lo=k==="days"?1:30,hi=k==="days"?30:150;v=Math.round(+v);if(!isFinite(v))return render();S[k]=Math.max(lo,Math.min(hi,v));save();render()}
+const smooth=()=>matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth";
+
+document.addEventListener("click",e=>{
+  const t=e.target;
+  const st=t.closest("[data-step]"); if(st){const[k,d]=st.dataset.step.split(":");setNum(k,S[k]+ +d);return}
+  const th=t.closest("[data-theme-set]"); if(th){applyTheme(th.dataset.themeSet);toast(th.getAttribute("aria-label"));return}
+  const sp=t.closest(".preset[data-sd]"); if(sp){$("sDays").value=sp.dataset.sd;syncSetup();return}
+  const ss=t.closest("[data-sstep]"); if(ss){const[k,d]=ss.dataset.sstep.split(":");const el=$(k);el.value=clampIn(el,(+el.value||0)+ +d);syncSetup();return}
+  const pr=t.closest(".preset[data-d]"); if(pr){setNum("days",pr.dataset.d);return}
+  const del=t.closest("[data-del]"); if(del){S.custom=S.custom.filter(c=>String(c.t)!==del.dataset.del);delete S.on["u"+del.dataset.del];save();render();toast("ลบแล้ว");return}
+  const jp=t.closest("[data-jump]"); if(jp){const ci=jp.dataset.jump;if(S.closed[ci]){S.closed[ci]=false;save();render()}$("g"+ci).scrollIntoView({behavior:smooth(),block:"start"});return}
+  const tg=t.closest("[data-toggle]"); if(tg){const ci=tg.dataset.toggle;S.closed[ci]=!S.closed[ci];save();render();return}
+  const it=t.closest(".item"); if(it){const id=it.dataset.id;if(S.on[id])delete S.on[id];else S.on[id]=true;save();render();
+    const el=document.querySelector(`[data-id="${id}"]`); if(el&&!S.hideDone) el.focus({preventScroll:true});}
+});
+document.addEventListener("keydown",e=>{const it=e.target.closest&&e.target.closest(".item");if(it&&(e.key===" "||e.key==="Enter")){e.preventDefault();it.click()}});
+["days","bw"].forEach(k=>$(k).addEventListener("change",e=>setNum(k,e.target.value)));
+$("fDone").onclick=()=>{S.hideDone=!S.hideDone;save();render()};
+$("reset").onclick=()=>{$("confirmBox").hidden=false;$("reset").hidden=true};
+$("no").onclick=()=>{$("confirmBox").hidden=true;$("reset").hidden=false};
+$("yes").onclick=()=>{S.on={};save();render();$("confirmBox").hidden=true;$("reset").hidden=false;toast("ล้างเครื่องหมายแล้ว")};
+$("mUp").onclick=()=>$("top").scrollIntoView({behavior:smooth()});
+$("addForm").addEventListener("submit",e=>{e.preventDefault();
+  const n=$("aName").value.trim(); if(!n)return;
+  S.custom.push({t:Date.now(),n,q:Math.max(1,+$("aQty").value||1),g:Math.max(0,+$("aG").value||0)});
+  e.target.reset();save();render();toast("เพิ่ม "+n+" แล้ว")});
+$("copy").onclick=()=>{
+  const items=allItems().filter(i=>qtyOf(i)>0);
+  const txt=`🎒 ${S.trip.name||"เช็กลิสต์เดินป่า"} (${tripLabel(S.days)})${S.trip.place?"\n📍 "+S.trip.place:""}\n`+CATS.map((c,ci)=>{const l=items.filter(i=>i.ci===ci);return l.length?`\n【${c}】\n`+l.map(i=>`${S.on[i.id]?"☑":"☐"} ${i.n}${i.u?` × ${qtyOf(i)} ${i.u}`:""}`).join("\n"):""}).join("");
+  const fallback=()=>{const ta=document.createElement("textarea");ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");toast("คัดลอกแล้ว วางใน LINE ได้เลย")}catch(_){toast("คัดลอกไม่ได้ในเบราว์เซอร์นี้")}ta.remove()};
+  try{navigator.clipboard.writeText(txt).then(()=>toast("คัดลอกแล้ว วางใน LINE ได้เลย"),fallback)}catch(_){fallback()}
+};
+function clampIn(el,v){const lo=+el.min,hi=+el.max,st=+el.step||1;v=Math.round(v/st)*st;return Math.max(lo,Math.min(hi,isFinite(v)?v:lo))}
+let setupMode="first";
+function syncSetup(){const d=+$("sDays").value||1;
+  $("sNights").textContent=d<=1?"ไม่ค้างคืน":`${d-1} คืน`;
+  document.querySelectorAll(".preset[data-sd]").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.sd===d));}
+function showSetup(mode){setupMode=mode;
+  const fresh=mode==="new";
+  $("sName").value=fresh?"":S.trip.name; $("sPlace").value=fresh?"":S.trip.place; $("sDate").value=fresh?"":S.trip.date;
+  $("sDays").value=S.days; $("sBw").value=S.bw; $("sWater").value=S.water;
+  $("sCook").checked=S.cook; $("sCold").checked=S.cold; $("sRain").checked=S.rain;
+  $("sClear").checked=fresh; $("sClearRow").hidden=mode==="first";
+  $("sCancel").hidden=mode==="first";
+  $("setupTitle").textContent=mode==="edit"?"แก้ไขทริป":mode==="new"?"ทริปใหม่":"วางแผนทริปเดินป่า";
+  $("setupSub").textContent=mode==="edit"?"ปรับข้อมูลแล้วกดบันทึก รายการของจะคำนวณใหม่":"กรอกข้อมูลทริป แล้วระบบจะคำนวณของที่ต้องเตรียมให้";
+  $("sSubmit").innerHTML=(mode==="edit"?ic("check")+"บันทึก":ic("backpack")+"เริ่มจัดเป้");
+  $("sNameErr").hidden=true; $("sName").classList.remove("bad");
+  syncSetup(); document.body.classList.add("setup-mode"); $("setup").hidden=false; window.scrollTo(0,0);
+  try{window.lucide&&lucide.createIcons()}catch(e){}
+  if(mode!=="edit") setTimeout(()=>$("sName").focus(),50);
+}
+function hideSetup(){$("setup").hidden=true;document.body.classList.remove("setup-mode");window.scrollTo(0,0)}
+["sDays","sBw","sWater"].forEach(k=>$(k).addEventListener("change",e=>{e.target.value=clampIn(e.target,+e.target.value);syncSetup()}));
+$("sName").addEventListener("input",()=>{if($("sName").value.trim()){$("sNameErr").hidden=true;$("sName").classList.remove("bad")}});
+$("setupForm").addEventListener("submit",e=>{e.preventDefault();
+  const name=$("sName").value.trim();
+  if(!name){$("sNameErr").hidden=false;$("sName").classList.add("bad");$("sName").focus();return}
+  S.trip={name,place:$("sPlace").value.trim(),date:$("sDate").value};
+  S.days=clampIn($("sDays"),+$("sDays").value); S.bw=clampIn($("sBw"),+$("sBw").value); S.water=clampIn($("sWater"),+$("sWater").value);
+  S.cook=$("sCook").checked; S.cold=$("sCold").checked; S.rain=$("sRain").checked;
+  if($("sClear").checked) S.on={};
+  const msg=setupMode==="edit"?"บันทึกแล้ว":"เริ่มจัดเป้ "+name;
+  save(); hideSetup(); render(); toast(msg);
+});
+$("sCancel").onclick=()=>{hideSetup();render()};
+$("editTrip").onclick=()=>showSetup("edit");
+$("newTrip").onclick=()=>showSetup("new");
+applyTheme(theme);
+render();
+if(!S.trip||!S.trip.name) showSetup("first");
+
+/* ---------- PWA ---------- */
+if("serviceWorker" in navigator) window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+const UA=navigator.userAgent;
+const isIOS=/iPhone|iPad|iPod/i.test(UA)||(/Macintosh/.test(UA)&&navigator.maxTouchPoints>1);
+const isMobile=isIOS||/Android|Mobi/i.test(UA);
+const standalone=()=>matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+const DKEY="trailpack.installDismissed";
+let deferredPrompt=null;
+function canShow(){if(!isMobile||standalone())return false;try{const t=+localStorage.getItem(DKEY)||0;if(Date.now()-t<3*864e5)return false}catch(e){}return true}
+function updateInstallUI(){
+  const avail=isMobile&&!standalone();
+  $("setInstallRow").hidden=!avail;
+  $("installBar").hidden=!(avail&&canShow());
+}
+function openSheet(){
+  const steps=isIOS?[
+    `กดปุ่ม <b>แชร์</b> <i data-lucide="share"></i> ที่แถบด้านล่างของ Safari`,
+    `เลื่อนลงแล้วเลือก <b>เพิ่มไปยังหน้าจอโฮม</b> <i data-lucide="square-plus"></i>`,
+    `กด <b>เพิ่ม</b> ที่มุมขวาบน`
+  ]:[
+    `กดเมนู <i data-lucide="ellipsis-vertical"></i> มุมขวาบนของเบราว์เซอร์`,
+    `เลือก <b>ติดตั้งแอป</b> หรือ <b>เพิ่มลงในหน้าจอหลัก</b>`,
+    `กด <b>ติดตั้ง</b> เพื่อยืนยัน`
+  ];
+  $("sheetP").textContent=isIOS?"ทำตาม 3 ขั้นตอนนี้ใน Safari":"ทำตาม 3 ขั้นตอนนี้ในเบราว์เซอร์";
+  $("sheetSteps").innerHTML=steps.map((t,i)=>`<li><span class="n">${i+1}</span><span>${t}</span></li>`).join("");
+  $("iosSheet").hidden=false;
+  try{window.lucide&&lucide.createIcons()}catch(e){}
+}
+async function doInstall(){
+  if(deferredPrompt){deferredPrompt.prompt();const r=await deferredPrompt.userChoice.catch(()=>null);deferredPrompt=null;
+    if(r&&r.outcome==="accepted"){$("installBar").hidden=true;toast("กำลังติดตั้งแอป")}}
+  else openSheet();
+}
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;updateInstallUI()});
+window.addEventListener("appinstalled",()=>{deferredPrompt=null;$("installBar").hidden=true;$("setInstallRow").hidden=true;toast("ติดตั้งแอปแล้ว")});
+$("installBtn").onclick=doInstall;
+$("setInstallBtn").onclick=doInstall;
+$("installX").onclick=()=>{$("installBar").hidden=true;try{localStorage.setItem(DKEY,Date.now())}catch(e){}};
+$("sheetOk").onclick=()=>{$("iosSheet").hidden=true};
+$("iosSheet").addEventListener("click",e=>{if(e.target.id==="iosSheet")$("iosSheet").hidden=true});
+updateInstallUI();
+try{window.lucide&&lucide.createIcons()}catch(e){}
+</script>
+
+</body>
+</html>
