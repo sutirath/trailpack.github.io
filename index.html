@@ -337,6 +337,7 @@ body{background:var(--bg);background-image:none;color:var(--body);font-size:15px
 .qty .pill{display:inline-block;background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:2px 10px;font-family:var(--f-data);font-weight:600;font-size:.95rem}
 .qty .pill span{font-family:var(--f-body);font-weight:400;font-size:.8rem;color:var(--muted);margin-left:3px}
 .qty small{display:block;font-family:var(--f-data);font-size:.72rem;color:var(--muted);margin-top:2px}
+.name em.chg{color:var(--signal);display:flex;align-items:center;gap:4px}.name em.chg svg.lucide{width:13px;height:13px;flex:none}
 .del{border:0;background:none;color:var(--muted);font-size:1.3rem;width:32px;height:32px;border-radius:8px;line-height:1}
 .del:hover{background:var(--signal-soft);color:var(--signal)}
 .na{display:none!important}
@@ -345,7 +346,7 @@ body{background:var(--bg);background-image:none;color:var(--body);font-size:15px
 .hidedone .list:not(:has(.item:not(.on):not(.na))) .allpacked{display:block}
 
 .add{margin-top:24px}
-.add form{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) auto;gap:8px}
+.add form{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) auto;gap:8px}
 .add input{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--sunk);min-width:0;min-height:44px}
 .add .go{border:0;background:var(--moss);color:var(--on-accent);border-radius:10px;padding:0 20px;font-weight:600;min-height:44px}
 .foot{font-size:.8rem;color:var(--muted);margin-top:18px}
@@ -375,7 +376,7 @@ body{background:var(--bg);background-image:none;color:var(--body);font-size:15px
   .preset{padding:8px 2px}
   .item{gap:12px;padding:12px 14px}
   .add form{grid-template-columns:1fr 1fr}
-  .add form input:first-child,.add .go{grid-column:1/-1}
+  .add form input:first-child{grid-column:1/-1}
 }
 @media (max-width:380px){.presets{grid-template-columns:1fr 1fr}.gbar{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
@@ -449,14 +450,13 @@ body{background:var(--bg);background-image:none;color:var(--body);font-size:15px
       </section>
       <section class="card">
         <h2><i data-lucide="user"></i>ตัวคุณ</h2>
-        <div class="inline"><span class="lb"><label for="sBw">น้ำหนักตัว</label><small>กิโลกรัม ใช้คำนวณน้ำหนักเป้ที่เหมาะสม</small></span>
-          <div class="step"><button type="button" data-sstep="sBw:-1" aria-label="ลดน้ำหนักตัว">−</button><input id="sBw" type="number" min="30" max="150" inputmode="numeric" value="70"><button type="button" data-sstep="sBw:1" aria-label="เพิ่มน้ำหนักตัว">+</button></div></div>
-        <div class="inline"><span class="lb"><label for="sWater">น้ำดื่มต่อวัน</label><small>ลิตร ปกติ 2–3 ลิตร</small></span>
+        <div class="inline" style="border-top:0"><span class="lb"><label for="sWater">น้ำดื่มต่อวัน</label><small>ลิตร ปกติ 2–3 ลิตร</small></span>
           <div class="step"><button type="button" data-sstep="sWater:-0.5" aria-label="ลดน้ำ">−</button><input id="sWater" type="number" min="0.5" max="6" step="0.5" inputmode="decimal" value="2.5"><button type="button" data-sstep="sWater:0.5" aria-label="เพิ่มน้ำ">+</button></div></div>
       </section>
       <section class="card">
         <h2><i data-lucide="settings-2"></i>การตั้งค่า</h2>
         <label class="tog" style="border-top:0"><input type="checkbox" id="sCook"><span class="sw"></span><span class="tl"><i data-lucide="flame"></i><span><b>ทำอาหารเอง</b><small>เพิ่มเตา แก๊ส หม้อสนาม</small></span></span></label>
+        <label class="tog"><input type="checkbox" id="sLodge"><span class="sw"></span><span class="tl"><i data-lucide="house"></i><span><b>มีที่พัก</b><small>ไม่ต้องเอาเต็นท์ แผ่นรองนอน</small></span></span></label>
         <label class="tog"><input type="checkbox" id="sCold"><span class="sw"></span><span class="tl"><i data-lucide="snowflake"></i><span><b>อากาศหนาว / ขึ้นดอย</b><small>เพิ่มเสื้อกันหนาว</small></span></span></label>
         <label class="tog"><input type="checkbox" id="sRain"><span class="sw"></span><span class="tl"><i data-lucide="cloud-rain"></i><span><b>ช่วงฝน / ป่าดิบชื้น</b><small>เพิ่มถุงกันทาก</small></span></span></label>
         <div class="inline" style="border-top:1px solid var(--line)"><span class="lb">ธีมสี<small>ปรับได้ภายหลัง</small></span>
@@ -502,10 +502,6 @@ body{background:var(--bg);background-image:none;color:var(--body);font-size:15px
           <label for="days">จำนวนวัน<small id="nights">1 คืน</small></label>
           <div class="step"><button type="button" data-step="days:-1" aria-label="ลดวัน">−</button><input id="days" type="number" min="1" max="30" inputmode="numeric" value="2"><button type="button" data-step="days:1" aria-label="เพิ่มวัน">+</button></div>
         </div>
-        <div class="field">
-          <label for="bw">น้ำหนักตัว<small>กิโลกรัม</small></label>
-          <div class="step"><button type="button" data-step="bw:-1" aria-label="ลดน้ำหนักตัว">−</button><input id="bw" type="number" min="30" max="150" inputmode="numeric" value="70"><button type="button" data-step="bw:1" aria-label="เพิ่มน้ำหนักตัว">+</button></div>
-        </div>
       </section>
 
       <section class="card" aria-labelledby="h-status">
@@ -514,13 +510,8 @@ body{background:var(--bg);background-image:none;color:var(--body);font-size:15px
           <div class="ring"><svg width="84" height="84" viewBox="0 0 84 84"><circle class="bgc" cx="42" cy="42" r="36"/><circle class="fg" id="ringFg" cx="42" cy="42" r="36" stroke-dasharray="226.2" stroke-dashoffset="226.2"/></svg><div class="t" id="ringT">0%</div></div>
           <div class="txt"><b id="progB">จัดแล้ว 0 จาก 0</b><span id="progS">เหลือ 0 รายการ</span></div>
         </div>
-        <div class="meter" id="meter">
-          <div class="row"><b><i data-lucide="weight"></i>น้ำหนักเป้</b><span class="big" id="wBig">0 <small>kg</small></span></div>
-          <div class="track"><i id="wBar"></i></div>
-          <div class="msg" id="wMsg"></div>
-        </div>
         <div class="stats">
-          <div class="stat"><span><i data-lucide="droplets"></i>น้ำดื่ม</span><b id="sWater">0<small>ลิตร</small></b></div>
+          <div class="stat"><span><i data-lucide="droplets"></i>น้ำดื่ม</span><b id="stWater">0<small>ลิตร</small></b></div>
           <div class="stat"><span><i data-lucide="utensils"></i>อาหาร</span><b id="sFood">0<small>มื้อ</small></b></div>
           <div class="stat"><span><i data-lucide="footprints"></i>ถุงเท้า</span><b id="sSock">0<small>คู่</small></b></div>
         </div>
@@ -545,17 +536,15 @@ body{background:var(--bg);background-image:none;color:var(--body);font-size:15px
       <form id="addForm">
         <input id="aName" placeholder="ชื่อของ เช่น กล้อง" required>
         <input id="aQty" type="number" min="1" placeholder="จำนวน" inputmode="numeric">
-        <input id="aG" type="number" min="0" placeholder="กรัม / ชิ้น" inputmode="numeric">
         <button class="go" type="submit"><i data-lucide="plus"></i>เพิ่ม</button>
       </form>
     </section>
-    <p class="foot">จำนวนคำนวณจากจำนวนวันและปัดขึ้น • ป้าย "ค้างคืน" จะซ่อนเมื่อไปวันเดียว • กด "แก้ไขทริป" เพื่อเปิด/ปิดของตามการตั้งค่า • น้ำหนักเป็นค่าประมาณ • เป้ไม่ควรเกิน 25% ของน้ำหนักตัว • สถานะบันทึกไว้ในเบราว์เซอร์เครื่องนี้</p>
+    <p class="foot">จำนวนคำนวณจากจำนวนวันและปัดขึ้น • ป้าย "ค้างคืน" จะซ่อนเมื่อไปวันเดียว • กด "แก้ไขทริป" เพื่อเปิด/ปิดของตามการตั้งค่า • สถานะบันทึกไว้ในเบราว์เซอร์เครื่องนี้</p>
   </main>
 </div>
 
 <div class="mbar" role="status">
   <div class="seg"><span id="mDays">2 วัน 1 คืน</span><b id="mProg">0/0</b><div class="mt"><i id="mProgBar"></i></div></div>
-  <div class="seg" id="mWseg"><span>น้ำหนักเป้</span><b id="mW">0 kg</b><div class="mt"><i id="mWBar"></i></div></div>
   <button class="up" id="mUp"><i data-lucide="sliders-horizontal"></i>ปรับทริป</button>
 </div>
 <div class="toast" id="toast"></div>
@@ -572,7 +561,7 @@ const DATA=[
   ["ถ่าน / แบตสำรองไฟฉาย",0,1,0,"ชุด",50,""]]],
  ["เสื้อผ้า",[
   ["เสื้อแห้งเร็ว",0,0,1,"ตัว",180,"1 ตัว/วัน"],
-  ["กางเกงเดินป่าแห้งเร็ว",0,1,0,"ตัว",350,""],
+  ["กางเกงเดินป่าแห้งเร็ว",0,0,0.5,"ตัว",350,"1 ตัว/2 วัน ใส่ซ้ำได้"],
   ["ถุงเท้าเดินป่า",0,1,1,"คู่",60,"1 คู่/วัน + สำรอง 1"],
   ["เสื้อกันหนาว / Fleece",0,1,0,"ตัว",400,"บนดอยกลางคืนหนาว"],
   ["เสื้อกันฝน / Poncho",0,1,0,"ตัว",300,""],
@@ -588,7 +577,7 @@ const DATA=[
   ["น้ำดื่ม",0,0,2.5,"ลิตร",1000,"~2.5 ลิตร/วัน"],
   ["ขวดน้ำ / Hydration bladder",0,1,0,"ใบ",150,""],
   ["เม็ด / เครื่องกรองน้ำ",0,1,0,"ชุด",100,""],
-  ["อาหารหลัก (ข้าวอบแห้ง ฯลฯ)",0,0,3,"มื้อ",150,"3 มื้อ/วัน"],
+  ["อาหารหลัก (ข้าวอบแห้ง ฯลฯ)",0,-2,3,"มื้อ",150,"3 มื้อ/วัน ไม่นับเช้าวันแรก + เย็นวันสุดท้าย"],
   ["ขนมพลังงานสูง",0,0,3,"ชิ้น",50,"ถั่ว เจล ช็อกโกแลต"],
   ["เตาแก๊สพกพา + ไฟแช็ก",1,1,0,"ชุด",300,""],
   ["แก๊สกระป๋อง",1,0,0.34,"กระป๋อง",230,"~1 กระป๋อง/3 วัน"],
@@ -627,7 +616,7 @@ function applyTheme(t){theme=t;
   document.querySelectorAll("[data-theme-set]").forEach(b=>b.setAttribute("aria-checked",b.dataset.themeSet===t));
   try{localStorage.setItem(TKEY,t)}catch(e){}
 }
-let S={days:2,bw:70,on:{},custom:[],closed:{},hideDone:false,trip:{name:"",place:"",date:""},water:2.5,cook:true,cold:true,rain:false};
+let S={days:2,bw:70,on:{},custom:[],closed:{},hideDone:false,trip:{name:"",place:"",date:""},water:2.5,cook:true,cold:true,rain:false,lodge:false};
 try{const s=JSON.parse(localStorage.getItem(KEY)||"null"); if(s) S=Object.assign(S,s);}catch(e){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const $=id=>document.getElementById(id);
@@ -638,6 +627,7 @@ const ic=(n,c)=>`<i data-lucide="${n}"${c?` class="${c}"`:""}></i>`;
 const COOK=new Set(["เตาแก๊สพกพา + ไฟแช็ก","แก๊สกระป๋อง","หม้อสนาม / ช้อน / แก้ว"]);
 const COLD=new Set(["เสื้อกันหนาว / Fleece"]);
 const RAIN=new Set(["ถุงกันทาก"]);
+const TENT=new Set(["เต็นท์ / เปล + ฟลายชีท","แผ่นรองนอน"]);
 const CATS=[...DATA.map(d=>d[0]),"ของเพิ่มเติม"];
 
 function allItems(){
@@ -646,8 +636,9 @@ function allItems(){
   S.custom.forEach(c=>out.push({id:"u"+c.t,ci:DATA.length,n:c.n,ov:0,b:c.q,pd:0,u:"ชิ้น",g:c.g,note:"",custom:true,t:c.t}));
   return out;
 }
-const qtyOf=it=>((it.ov&&S.days<=1)||(COOK.has(it.n)&&!S.cook)||(COLD.has(it.n)&&!S.cold)||(RAIN.has(it.n)&&!S.rain))?0:Math.ceil(it.b+it.pd*S.days-1e-9);
-const fmtW=g=>g>=1000?(g/1000).toFixed(1)+" kg":g+" g";
+const qtyOf=it=>((it.ov&&S.days<=1)||(COOK.has(it.n)&&!S.cook)||(COLD.has(it.n)&&!S.cold)||(RAIN.has(it.n)&&!S.rain)||(TENT.has(it.n)&&S.lodge))?0:Math.max(1,Math.ceil(it.b+it.pd*S.days-1e-9));
+const isOn=it=>{const v=S.on[it.id];return v===true||(v>0&&v===qtyOf(it))};
+const wasOn=it=>{const v=S.on[it.id];return typeof v==="number"&&v>0&&v!==qtyOf(it)&&qtyOf(it)>0};
 const tripLabel=d=>d<=1?"ไปเช้าเย็นกลับ":`${d} วัน ${d-1} คืน`;
 
 function render(){
@@ -656,13 +647,13 @@ function render(){
   CATS.forEach((cat,ci)=>{
     const list=items.filter(i=>i.ci===ci); if(!list.length) return;
     const need=list.filter(i=>qtyOf(i)>0); if(!need.length&&ci!==DATA.length) { return; }
-    const done=need.filter(i=>S.on[i.id]).length, full=need.length&&done===need.length;
+    const done=need.filter(isOn).length, full=need.length&&done===need.length;
     const rows=list.map(it=>{
-      const q=qtyOf(it), on=!!S.on[it.id], w=q*it.g;
+      const q=qtyOf(it), on=isOn(it), chg=wasOn(it);
       return `<li class="item${on?" on":""}${q===0?" na":""}" data-id="${it.id}" role="checkbox" aria-checked="${on}" tabindex="0">
         <span class="box">${CHECK}</span>
-        <span class="name"><b>${esc(it.n)}${it.ov?'<span class="tag"><i data-lucide="moon"></i>ค้างคืน</span>':""}</b>${it.note?`<em>${esc(it.note)}</em>`:""}</span>
-        <span class="qty">${it.u?`<span class="pill">${q}<span>${it.u}</span></span>`:""}${w?`<small>${fmtW(w)}</small>`:""}</span>
+        <span class="name"><b>${esc(it.n)}${it.ov?'<span class="tag"><i data-lucide="moon"></i>ค้างคืน</span>':""}</b>${it.note?`<em>${esc(it.note)}</em>`:""}${chg?`<em class="chg">${ic("refresh-cw")}จำนวนเปลี่ยนจาก ${S.on[it.id]} เป็น ${q} ${esc(it.u)} เช็กใหม่อีกครั้ง</em>`:""}</span>
+        <span class="qty">${it.u?`<span class="pill">${q}<span>${it.u}</span></span>`:""}</span>
         ${it.custom?`<button class="del" data-del="${it.t}" aria-label="ลบ ${esc(it.n)}">${ic("x")}</button>`:"<span></span>"}
       </li>`}).join("");
     groups+=`<section class="group${S.closed[ci]?" closed":""}" id="g${ci}">
@@ -681,8 +672,8 @@ function render(){
   try{window.lucide&&lucide.createIcons()}catch(e){}
 }
 function summary(items){
-  const need=items.filter(i=>qtyOf(i)>0), done=need.filter(i=>S.on[i.id]).length, pct=need.length?done/need.length:0;
-  $("days").value=S.days; $("bw").value=S.bw;
+  const need=items.filter(i=>qtyOf(i)>0), done=need.filter(isOn).length, pct=need.length?done/need.length:0;
+  $("days").value=S.days;
   $("nights").textContent=S.days<=1?"ไม่ค้างคืน":`${S.days-1} คืน`;
   document.querySelectorAll(".preset[data-d]").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.d===S.days));
   $("tripName").textContent=S.trip.name||"เช็กลิสต์เดินป่า";
@@ -698,21 +689,13 @@ function summary(items){
   $("ringT").textContent=Math.round(pct*100)+"%";
   $("progB").textContent=`จัดแล้ว ${done} จาก ${need.length}`;
   $("progS").textContent=done===need.length&&need.length?"พร้อมออกเดินทางแล้ว":`เหลือ ${need.length-done} รายการ`;
-  const g=need.reduce((s,i)=>s+qtyOf(i)*i.g,0), kg=g/1000, lim=S.bw*.25, over=kg>lim, wp=Math.min(100,kg/lim*100);
-  $("wBig").innerHTML=`${kg.toFixed(1)} <small>/ ${lim.toFixed(1)} kg</small>`;
-  $("wBar").style.width=wp+"%";
-  $("meter").classList.toggle("warn",over);
-  $("wMsg").innerHTML=over?`${ic("triangle-alert")}<span>หนักเกินไป ${(kg-lim).toFixed(1)} kg ลองลดของหรือแบ่งให้เพื่อน</span>`:`${ic("circle-check")}<span>${Math.round(kg/S.bw*100)}% ของน้ำหนักตัว ยังอยู่ในเกณฑ์</span>`;
   const find=p=>qtyOf(items.find(i=>i.n.startsWith(p)));
-  $("sWater").innerHTML=`${find("น้ำดื่ม")}<small>ลิตร</small>`;
+  $("stWater").innerHTML=`${find("น้ำดื่ม")}<small>ลิตร</small>`;
   $("sFood").innerHTML=`${find("อาหารหลัก")}<small>มื้อ</small>`;
   $("sSock").innerHTML=`${find("ถุงเท้า")}<small>คู่</small>`;
   $("mDays").textContent=(S.trip.name?S.trip.name+" · ":"")+tripLabel(S.days);
   $("mProg").textContent=`${done}/${need.length} รายการ`;
   $("mProgBar").style.width=pct*100+"%";
-  $("mW").textContent=`${kg.toFixed(1)} / ${lim.toFixed(1)} kg`;
-  $("mWBar").style.width=wp+"%";
-  $("mWseg").classList.toggle("warn",over);
 }
 function toast(t){const el=$("toast");el.textContent=t;el.classList.add("show");clearTimeout(toast.h);toast.h=setTimeout(()=>el.classList.remove("show"),1600)}
 function setNum(k,v){const lo=k==="days"?1:30,hi=k==="days"?30:150;v=Math.round(+v);if(!isFinite(v))return render();S[k]=Math.max(lo,Math.min(hi,v));save();render()}
@@ -728,11 +711,11 @@ document.addEventListener("click",e=>{
   const del=t.closest("[data-del]"); if(del){S.custom=S.custom.filter(c=>String(c.t)!==del.dataset.del);delete S.on["u"+del.dataset.del];save();render();toast("ลบแล้ว");return}
   const jp=t.closest("[data-jump]"); if(jp){const ci=jp.dataset.jump;if(S.closed[ci]){S.closed[ci]=false;save();render()}$("g"+ci).scrollIntoView({behavior:smooth(),block:"start"});return}
   const tg=t.closest("[data-toggle]"); if(tg){const ci=tg.dataset.toggle;S.closed[ci]=!S.closed[ci];save();render();return}
-  const it=t.closest(".item"); if(it){const id=it.dataset.id;if(S.on[id])delete S.on[id];else S.on[id]=true;save();render();
+  const it=t.closest(".item"); if(it){const id=it.dataset.id;const o=allItems().find(x=>x.id===id);if(!o)return;if(isOn(o))delete S.on[id];else S.on[id]=qtyOf(o);save();render();
     const el=document.querySelector(`[data-id="${id}"]`); if(el&&!S.hideDone) el.focus({preventScroll:true});}
 });
 document.addEventListener("keydown",e=>{const it=e.target.closest&&e.target.closest(".item");if(it&&(e.key===" "||e.key==="Enter")){e.preventDefault();it.click()}});
-["days","bw"].forEach(k=>$(k).addEventListener("change",e=>setNum(k,e.target.value)));
+$("days").addEventListener("change",e=>setNum("days",e.target.value));
 $("fDone").onclick=()=>{S.hideDone=!S.hideDone;save();render()};
 $("reset").onclick=()=>{$("confirmBox").hidden=false;$("reset").hidden=true};
 $("no").onclick=()=>{$("confirmBox").hidden=true;$("reset").hidden=false};
@@ -740,11 +723,11 @@ $("yes").onclick=()=>{S.on={};save();render();$("confirmBox").hidden=true;$("res
 $("mUp").onclick=()=>$("top").scrollIntoView({behavior:smooth()});
 $("addForm").addEventListener("submit",e=>{e.preventDefault();
   const n=$("aName").value.trim(); if(!n)return;
-  S.custom.push({t:Date.now(),n,q:Math.max(1,+$("aQty").value||1),g:Math.max(0,+$("aG").value||0)});
+  S.custom.push({t:Date.now(),n,q:Math.max(1,+$("aQty").value||1),g:0});
   e.target.reset();save();render();toast("เพิ่ม "+n+" แล้ว")});
 $("copy").onclick=()=>{
   const items=allItems().filter(i=>qtyOf(i)>0);
-  const txt=`🎒 ${S.trip.name||"เช็กลิสต์เดินป่า"} (${tripLabel(S.days)})${S.trip.place?"\n📍 "+S.trip.place:""}\n`+CATS.map((c,ci)=>{const l=items.filter(i=>i.ci===ci);return l.length?`\n【${c}】\n`+l.map(i=>`${S.on[i.id]?"☑":"☐"} ${i.n}${i.u?` × ${qtyOf(i)} ${i.u}`:""}`).join("\n"):""}).join("");
+  const txt=`🎒 ${S.trip.name||"เช็กลิสต์เดินป่า"} (${tripLabel(S.days)})${S.trip.place?"\n📍 "+S.trip.place:""}\n`+CATS.map((c,ci)=>{const l=items.filter(i=>i.ci===ci);return l.length?`\n【${c}】\n`+l.map(i=>`${isOn(i)?"☑":"☐"} ${i.n}${i.u?` × ${qtyOf(i)} ${i.u}`:""}`).join("\n"):""}).join("");
   const fallback=()=>{const ta=document.createElement("textarea");ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");toast("คัดลอกแล้ว วางใน LINE ได้เลย")}catch(_){toast("คัดลอกไม่ได้ในเบราว์เซอร์นี้")}ta.remove()};
   try{navigator.clipboard.writeText(txt).then(()=>toast("คัดลอกแล้ว วางใน LINE ได้เลย"),fallback)}catch(_){fallback()}
 };
@@ -756,8 +739,8 @@ function syncSetup(){const d=+$("sDays").value||1;
 function showSetup(mode){setupMode=mode;
   const fresh=mode==="new";
   $("sName").value=fresh?"":S.trip.name; $("sPlace").value=fresh?"":S.trip.place; $("sDate").value=fresh?"":S.trip.date;
-  $("sDays").value=S.days; $("sBw").value=S.bw; $("sWater").value=S.water;
-  $("sCook").checked=S.cook; $("sCold").checked=S.cold; $("sRain").checked=S.rain;
+  $("sDays").value=S.days; $("sWater").value=S.water;
+  $("sCook").checked=S.cook; $("sCold").checked=S.cold; $("sRain").checked=S.rain; $("sLodge").checked=S.lodge;
   $("sClear").checked=fresh; $("sClearRow").hidden=mode==="first";
   $("sCancel").hidden=mode==="first";
   $("setupTitle").textContent=mode==="edit"?"แก้ไขทริป":mode==="new"?"ทริปใหม่":"วางแผนทริปเดินป่า";
@@ -769,14 +752,14 @@ function showSetup(mode){setupMode=mode;
   if(mode!=="edit") setTimeout(()=>$("sName").focus(),50);
 }
 function hideSetup(){$("setup").hidden=true;document.body.classList.remove("setup-mode");window.scrollTo(0,0)}
-["sDays","sBw","sWater"].forEach(k=>$(k).addEventListener("change",e=>{e.target.value=clampIn(e.target,+e.target.value);syncSetup()}));
+["sDays","sWater"].forEach(k=>$(k).addEventListener("change",e=>{e.target.value=clampIn(e.target,+e.target.value);syncSetup()}));
 $("sName").addEventListener("input",()=>{if($("sName").value.trim()){$("sNameErr").hidden=true;$("sName").classList.remove("bad")}});
 $("setupForm").addEventListener("submit",e=>{e.preventDefault();
   const name=$("sName").value.trim();
   if(!name){$("sNameErr").hidden=false;$("sName").classList.add("bad");$("sName").focus();return}
   S.trip={name,place:$("sPlace").value.trim(),date:$("sDate").value};
-  S.days=clampIn($("sDays"),+$("sDays").value); S.bw=clampIn($("sBw"),+$("sBw").value); S.water=clampIn($("sWater"),+$("sWater").value);
-  S.cook=$("sCook").checked; S.cold=$("sCold").checked; S.rain=$("sRain").checked;
+  S.days=clampIn($("sDays"),+$("sDays").value); S.water=clampIn($("sWater"),+$("sWater").value);
+  S.cook=$("sCook").checked; S.cold=$("sCold").checked; S.rain=$("sRain").checked; S.lodge=$("sLodge").checked;
   if($("sClear").checked) S.on={};
   const msg=setupMode==="edit"?"บันทึกแล้ว":"เริ่มจัดเป้ "+name;
   save(); hideSetup(); render(); toast(msg);
