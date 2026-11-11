@@ -340,6 +340,14 @@ body{background:var(--bg);background-image:none;color:var(--body);font-size:15px
 .name em.chg{color:var(--signal);display:flex;align-items:center;gap:4px}.name em.chg svg.lucide{width:13px;height:13px;flex:none}
 .del{border:0;background:none;color:var(--muted);font-size:1.3rem;width:32px;height:32px;border-radius:8px;line-height:1}
 .del:hover{background:var(--signal-soft);color:var(--signal)}
+.acts{display:flex;gap:2px}
+.ren{border:0;background:none;color:var(--muted);width:32px;height:32px;border-radius:8px;display:grid;place-items:center}
+.ren svg.lucide{width:17px;height:17px}
+.ren:hover{background:var(--primary-soft);color:var(--primary)}
+.rn{width:100%;min-width:0;border:1px solid var(--primary);border-radius:8px;padding:6px 10px;background:var(--surface);font-size:16px;box-shadow:0 0 0 3px var(--primary-soft);outline:none}
+.item.editing{cursor:default}
+.restore{margin-top:10px;border:0;background:none;color:var(--primary);font-size:.85rem;font-weight:500;padding:4px 0;display:inline-flex;align-items:center;gap:6px}
+.restore svg.lucide{width:15px;height:15px}
 .na{display:none!important}
 .hidedone .item.on{display:none}
 .allpacked{display:none;padding:14px 16px;color:var(--moss);font-size:.88rem}
@@ -538,6 +546,7 @@ body{background:var(--bg);background-image:none;color:var(--body);font-size:15px
         <input id="aQty" type="number" min="1" placeholder="จำนวน" inputmode="numeric">
         <button class="go" type="submit"><i data-lucide="plus"></i>เพิ่ม</button>
       </form>
+      <button type="button" class="restore" id="restore" hidden><i data-lucide="undo-2"></i><span></span></button>
     </section>
     <p class="foot">จำนวนคำนวณจากจำนวนวันและปัดขึ้น • ป้าย "ค้างคืน" จะซ่อนเมื่อไปวันเดียว • กด "แก้ไขทริป" เพื่อเปิด/ปิดของตามการตั้งค่า • สถานะบันทึกไว้ในเบราว์เซอร์เครื่องนี้</p>
   </main>
@@ -616,8 +625,10 @@ function applyTheme(t){theme=t;
   document.querySelectorAll("[data-theme-set]").forEach(b=>b.setAttribute("aria-checked",b.dataset.themeSet===t));
   try{localStorage.setItem(TKEY,t)}catch(e){}
 }
-let S={days:2,bw:70,on:{},custom:[],closed:{},hideDone:false,trip:{name:"",place:"",date:""},water:2.5,cook:true,cold:true,rain:false,lodge:false};
+let S={days:2,bw:70,on:{},custom:[],closed:{},hideDone:false,trip:{name:"",place:"",date:""},water:2.5,cook:true,cold:true,rain:false,lodge:false,names:{},removed:{}};
 try{const s=JSON.parse(localStorage.getItem(KEY)||"null"); if(s) S=Object.assign(S,s);}catch(e){}
+S.names=S.names||{}; S.removed=S.removed||{};
+let editing=null;
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -632,8 +643,10 @@ const CATS=[...DATA.map(d=>d[0]),"ของเพิ่มเติม"];
 
 function allItems(){
   const out=[];
-  DATA.forEach(([,items],ci)=>items.forEach((it,ii)=>out.push({id:`${ci}-${ii}`,ci,n:it[0],ov:it[1],b:it[2],pd:it[0]==="น้ำดื่ม"?S.water:it[3],u:it[4],g:it[5],note:it[6]})));
-  S.custom.forEach(c=>out.push({id:"u"+c.t,ci:DATA.length,n:c.n,ov:0,b:c.q,pd:0,u:"ชิ้น",g:c.g,note:"",custom:true,t:c.t}));
+  // n = original name (used by logic), label = display name (renamable)
+  DATA.forEach(([,items],ci)=>items.forEach((it,ii)=>{const id=`${ci}-${ii}`;if(S.removed[id])return;
+    out.push({id,ci,n:it[0],label:S.names[id]||it[0],ov:it[1],b:it[2],pd:it[0]==="น้ำดื่ม"?S.water:it[3],u:it[4],g:it[5],note:it[6]})}));
+  S.custom.forEach(c=>out.push({id:"u"+c.t,ci:DATA.length,n:c.n,label:c.n,ov:0,b:c.q,pd:0,u:"ชิ้น",g:c.g,note:"",custom:true,t:c.t}));
   return out;
 }
 const qtyOf=it=>((it.ov&&S.days<=1)||(COOK.has(it.n)&&!S.cook)||(COLD.has(it.n)&&!S.cold)||(RAIN.has(it.n)&&!S.rain)||(TENT.has(it.n)&&S.lodge))?0:Math.max(1,Math.ceil(it.b+it.pd*S.days-1e-9));
@@ -650,11 +663,12 @@ function render(){
     const done=need.filter(isOn).length, full=need.length&&done===need.length;
     const rows=list.map(it=>{
       const q=qtyOf(it), on=isOn(it), chg=wasOn(it);
-      return `<li class="item${on?" on":""}${q===0?" na":""}" data-id="${it.id}" role="checkbox" aria-checked="${on}" tabindex="0">
+      const ed=editing===it.id;
+      return `<li class="item${on?" on":""}${q===0?" na":""}${ed?" editing":""}" data-id="${it.id}" role="checkbox" aria-checked="${on}" tabindex="0">
         <span class="box">${CHECK}</span>
-        <span class="name"><b>${esc(it.n)}${it.ov?'<span class="tag"><i data-lucide="moon"></i>ค้างคืน</span>':""}</b>${it.note?`<em>${esc(it.note)}</em>`:""}${chg?`<em class="chg">${ic("refresh-cw")}จำนวนเปลี่ยนจาก ${S.on[it.id]} เป็น ${q} ${esc(it.u)} เช็กใหม่อีกครั้ง</em>`:""}</span>
+        <span class="name">${ed?`<input class="rn" data-rn="${it.id}" value="${esc(it.label)}" maxlength="80" aria-label="ชื่อรายการ" autocomplete="off">`:`<b>${esc(it.label)}${it.ov?'<span class="tag"><i data-lucide="moon"></i>ค้างคืน</span>':""}</b>`}${it.note?`<em>${esc(it.note)}</em>`:""}${chg?`<em class="chg">${ic("refresh-cw")}จำนวนเปลี่ยนจาก ${S.on[it.id]} เป็น ${q} ${esc(it.u)} เช็กใหม่อีกครั้ง</em>`:""}</span>
         <span class="qty">${it.u?`<span class="pill">${q}<span>${it.u}</span></span>`:""}</span>
-        ${it.custom?`<button class="del" data-del="${it.t}" aria-label="ลบ ${esc(it.n)}">${ic("x")}</button>`:"<span></span>"}
+        <span class="acts"><button class="ren" data-ren="${it.id}" aria-label="แก้ไขชื่อ ${esc(it.label)}" title="แก้ไขชื่อ">${ic("pencil")}</button><button class="del" data-del="${it.id}" aria-label="ลบ ${esc(it.label)}" title="ลบ">${ic("trash-2")}</button></span>
       </li>`}).join("");
     groups+=`<section class="group${S.closed[ci]?" closed":""}" id="g${ci}">
       <button class="ghead" data-toggle="${ci}" aria-expanded="${!S.closed[ci]}"><h3>${ic(CICON[ci])}${cat}</h3>
@@ -668,8 +682,21 @@ function render(){
   $("groups").classList.toggle("hidedone",S.hideDone);
   $("fDone").setAttribute("aria-pressed",S.hideDone);
   $("fDone").innerHTML=S.hideDone?'<i data-lucide="eye"></i>แสดงทั้งหมด':'<i data-lucide="eye-off"></i>ซ่อนที่จัดแล้ว';
+  const nRm=Object.keys(S.removed).length;
+  $("restore").hidden=!nRm; $("restore").querySelector("span").textContent=`กู้คืนรายการเริ่มต้นที่ลบไป (${nRm})`;
   summary(items);
   try{window.lucide&&lucide.createIcons()}catch(e){}
+  if(editing){const inp=document.querySelector(`[data-rn="${editing}"]`);if(inp){inp.focus();inp.select()}else editing=null}
+}
+function commitRename(id,val){
+  editing=null; val=(val||"").trim();
+  const c=id[0]==="u"&&S.custom.find(x=>"u"+x.t===id);
+  if(c){if(val&&val!==c.n){c.n=val;toast("เปลี่ยนชื่อแล้ว")}}
+  else{const o=allItems().find(x=>x.id===id); if(!o)return render();
+    if(!val||val===o.n){if(S.names[id]){delete S.names[id];toast("คืนชื่อเดิมแล้ว")}}
+    else if(val!==o.label){S.names[id]=val;toast("เปลี่ยนชื่อแล้ว")}}
+  save();render();
+  const el=document.querySelector(`[data-id="${id}"]`); if(el) el.focus({preventScroll:true});
 }
 function summary(items){
   const need=items.filter(i=>qtyOf(i)>0), done=need.filter(isOn).length, pct=need.length?done/need.length:0;
@@ -689,7 +716,7 @@ function summary(items){
   $("ringT").textContent=Math.round(pct*100)+"%";
   $("progB").textContent=`จัดแล้ว ${done} จาก ${need.length}`;
   $("progS").textContent=done===need.length&&need.length?"พร้อมออกเดินทางแล้ว":`เหลือ ${need.length-done} รายการ`;
-  const find=p=>qtyOf(items.find(i=>i.n.startsWith(p)));
+  const find=p=>{const i=items.find(i=>i.n.startsWith(p));return i?qtyOf(i):0};
   $("stWater").innerHTML=`${find("น้ำดื่ม")}<small>ลิตร</small>`;
   $("sFood").innerHTML=`${find("อาหารหลัก")}<small>มื้อ</small>`;
   $("sSock").innerHTML=`${find("ถุงเท้า")}<small>คู่</small>`;
@@ -708,13 +735,23 @@ document.addEventListener("click",e=>{
   const sp=t.closest(".preset[data-sd]"); if(sp){$("sDays").value=sp.dataset.sd;syncSetup();return}
   const ss=t.closest("[data-sstep]"); if(ss){const[k,d]=ss.dataset.sstep.split(":");const el=$(k);el.value=clampIn(el,(+el.value||0)+ +d);syncSetup();return}
   const pr=t.closest(".preset[data-d]"); if(pr){setNum("days",pr.dataset.d);return}
-  const del=t.closest("[data-del]"); if(del){S.custom=S.custom.filter(c=>String(c.t)!==del.dataset.del);delete S.on["u"+del.dataset.del];save();render();toast("ลบแล้ว");return}
+  if(t.closest(".rn")) return;
+  const rn=t.closest("[data-ren]"); if(rn){editing=rn.dataset.ren;render();return}
+  const del=t.closest("[data-del]"); if(del){const id=del.dataset.del;
+    if(id[0]==="u") S.custom=S.custom.filter(c=>"u"+c.t!==id); else {S.removed[id]=true;delete S.names[id];}
+    delete S.on[id]; if(editing===id) editing=null; save();render();toast("ลบแล้ว");return}
   const jp=t.closest("[data-jump]"); if(jp){const ci=jp.dataset.jump;if(S.closed[ci]){S.closed[ci]=false;save();render()}$("g"+ci).scrollIntoView({behavior:smooth(),block:"start"});return}
   const tg=t.closest("[data-toggle]"); if(tg){const ci=tg.dataset.toggle;S.closed[ci]=!S.closed[ci];save();render();return}
   const it=t.closest(".item"); if(it){const id=it.dataset.id;const o=allItems().find(x=>x.id===id);if(!o)return;if(isOn(o))delete S.on[id];else S.on[id]=qtyOf(o);save();render();
     const el=document.querySelector(`[data-id="${id}"]`); if(el&&!S.hideDone) el.focus({preventScroll:true});}
 });
-document.addEventListener("keydown",e=>{const it=e.target.closest&&e.target.closest(".item");if(it&&(e.key===" "||e.key==="Enter")){e.preventDefault();it.click()}});
+document.addEventListener("keydown",e=>{
+  const r=e.target.closest&&e.target.closest(".rn");
+  if(r){if(e.key==="Enter"){e.preventDefault();commitRename(r.dataset.rn,r.value)}else if(e.key==="Escape"){e.preventDefault();const id=r.dataset.rn;editing=null;render();const el=document.querySelector(`[data-id="${id}"]`);if(el)el.focus()}return}
+  if(e.target.closest&&e.target.closest("button"))return;
+  const it=e.target.closest&&e.target.closest(".item");if(it&&(e.key===" "||e.key==="Enter")){e.preventDefault();it.click()}});
+document.addEventListener("focusout",e=>{const r=e.target.closest&&e.target.closest(".rn");if(r&&editing===r.dataset.rn)commitRename(r.dataset.rn,r.value)});
+$("restore").onclick=()=>{const n=Object.keys(S.removed).length;S.removed={};save();render();toast(`กู้คืน ${n} รายการแล้ว`)};
 $("days").addEventListener("change",e=>setNum("days",e.target.value));
 $("fDone").onclick=()=>{S.hideDone=!S.hideDone;save();render()};
 $("reset").onclick=()=>{$("confirmBox").hidden=false;$("reset").hidden=true};
@@ -727,7 +764,7 @@ $("addForm").addEventListener("submit",e=>{e.preventDefault();
   e.target.reset();save();render();toast("เพิ่ม "+n+" แล้ว")});
 $("copy").onclick=()=>{
   const items=allItems().filter(i=>qtyOf(i)>0);
-  const txt=`🎒 ${S.trip.name||"เช็กลิสต์เดินป่า"} (${tripLabel(S.days)})${S.trip.place?"\n📍 "+S.trip.place:""}\n`+CATS.map((c,ci)=>{const l=items.filter(i=>i.ci===ci);return l.length?`\n【${c}】\n`+l.map(i=>`${isOn(i)?"☑":"☐"} ${i.n}${i.u?` × ${qtyOf(i)} ${i.u}`:""}`).join("\n"):""}).join("");
+  const txt=`🎒 ${S.trip.name||"เช็กลิสต์เดินป่า"} (${tripLabel(S.days)})${S.trip.place?"\n📍 "+S.trip.place:""}\n`+CATS.map((c,ci)=>{const l=items.filter(i=>i.ci===ci);return l.length?`\n【${c}】\n`+l.map(i=>`${isOn(i)?"☑":"☐"} ${i.label}${i.u?` × ${qtyOf(i)} ${i.u}`:""}`).join("\n"):""}).join("");
   const fallback=()=>{const ta=document.createElement("textarea");ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");toast("คัดลอกแล้ว วางใน LINE ได้เลย")}catch(_){toast("คัดลอกไม่ได้ในเบราว์เซอร์นี้")}ta.remove()};
   try{navigator.clipboard.writeText(txt).then(()=>toast("คัดลอกแล้ว วางใน LINE ได้เลย"),fallback)}catch(_){fallback()}
 };
@@ -773,6 +810,7 @@ if(!S.trip||!S.trip.name) showSetup("first");
 
 /* ---------- PWA ---------- */
 if("serviceWorker" in navigator) window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+if(navigator.storage&&navigator.storage.persist) navigator.storage.persist().catch(()=>{});
 const UA=navigator.userAgent;
 const isIOS=/iPhone|iPad|iPod/i.test(UA)||(/Macintosh/.test(UA)&&navigator.maxTouchPoints>1);
 const isMobile=isIOS||/Android|Mobi/i.test(UA);
